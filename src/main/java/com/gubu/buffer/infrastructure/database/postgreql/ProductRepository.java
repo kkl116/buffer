@@ -1,4 +1,5 @@
 package com.gubu.buffer.infrastructure.database.postgreql;
 
-public class ProductRepository {
-}
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductRepository extends JpaRepository<ProductEntity, Long> {}

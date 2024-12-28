@@ -1,11 +1,10 @@
 package com.gubu.buffer.domain.product;
 
 import com.gubu.buffer.domain.model.ProductRecord;
+import com.gubu.buffer.infrastructure.database.postgreql.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 public class ProductService {
@@ -20,13 +19,13 @@ public class ProductService {
         this.productRepository.save(ProductMapper.toEntity(productRecord));
     }
 
-    public void deleteProduct(ProductRecord productRecord) {
-        this.productRepository.delete(ProductMapper.toEntity(productRecord));
+    public void deleteProduct(Long id) {
+        this.productRepository.deleteById(id);
     }
 
     public List<ProductRecord> getAllProducts() {
         return this.productRepository.findAll().stream()
             .map(ProductMapper::toRecord)
-            .collect(toList());
+            .toList();
     }
 }
