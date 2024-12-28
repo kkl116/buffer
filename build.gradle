@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id "org.springframework.boot" version "3.4.1"
+}
+
+group = 'com.gubu.buffer'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = "21"
+}
+
+dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.1') //spring boot bom
+    implementation 'org.springframework.boot:spring-boot-starter'
+}
+
+test {
+    useJUnitPlatform()
+}
