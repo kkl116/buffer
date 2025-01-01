@@ -12,9 +12,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ProductEntity {
 
-    public ProductEntity() {
-        //For JPA
-     }
+    public ProductEntity() { /*For JPA */ }
 
     @Id
     private Long id;
