@@ -1,4 +1,5 @@
 package com.gubu.buffer.application;
+import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.ProductRecord;
 import com.gubu.buffer.domain.product.ProductService;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ public class ProductController {
     }
 
     @PostMapping("/product")
-    void saveProduct(@RequestBody ProductRecord productRecord) {
-        productService.saveProduct(productRecord);
+    void saveProduct(@RequestBody ProductRequestDto productRequestDto) {
+        productService.saveProduct(productRequestDto);
     }
 
     @DeleteMapping("/product/{id}")
