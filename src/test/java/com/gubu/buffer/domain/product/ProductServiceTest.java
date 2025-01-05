@@ -10,8 +10,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class ProductServiceTest {
 
@@ -25,13 +28,16 @@ class ProductServiceTest {
     }
 
     @Test
-    void shouldSaveProduct() {
+    void shouldAddProduct() {
         //Given
+        when(productRepository.save(any(ProductEntity.class)))
+            .thenReturn(ProductEntity.builder().id(1L).name("dummy").build());
+
         ArgumentCaptor<ProductEntity> captor = ArgumentCaptor.forClass(ProductEntity.class);
         ProductRequestDto productRequestDto = new ProductRequestDto("dummy");
 
         //When
-        productService.saveProduct(productRequestDto);
+        productService.addProduct(productRequestDto);
 
         //Then
         Mockito.verify(productRepository).save(captor.capture());
@@ -56,7 +62,7 @@ class ProductServiceTest {
         //Given
         ProductEntity productEntity1 = ProductEntity.builder().id(1L).name("dummy1").build();
         ProductEntity productEntity2 = ProductEntity.builder().id(2L).name("dummy2").build();
-        Mockito.when(productRepository.findAll()).thenReturn(List.of(productEntity1, productEntity2));
+        when(productRepository.findAll()).thenReturn(List.of(productEntity1, productEntity2));
 
         //When
         List<ProductRecord> productRecords = productService.getAllProducts();
@@ -67,5 +73,24 @@ class ProductServiceTest {
         assertEquals("dummy1", productRecords.getFirst().name());
         assertEquals(2, productRecords.get(1).id());
         assertEquals("dummy2", productRecords.get(1).name());
+    }
+
+    @Test
+    void shouldUpdateProduct() {
+        //Given
+        Long productId = 1L;
+        ProductEntity entity = ProductEntity.builder().id(productId).name("old").build();
+        when(productRepository.findById(productId)).thenReturn(Optional.of(entity));
+
+        ArgumentCaptor<ProductEntity> captor = ArgumentCaptor.forClass(ProductEntity.class);
+        ProductRequestDto productRequestDto = new ProductRequestDto("new");
+
+        //When
+        productService.updateProduct(productId, productRequestDto);
+
+        //Then
+        Mockito.verify(productRepository).save(captor.capture());
+        ProductEntity capturedProductEntity = captor.getValue();
+        assertEquals("new", capturedProductEntity.getName());
     }
 }

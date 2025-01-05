@@ -1,10 +1,13 @@
 package com.gubu.buffer.application;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
-import com.gubu.buffer.domain.model.ProductRecord;
+import com.gubu.buffer.application.dto.response.ProductResponseDto;
+import com.gubu.buffer.domain.product.ProductMapper;
 import com.gubu.buffer.domain.product.ProductService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.gubu.buffer.domain.product.ProductMapper.toResponse;
 
 @RestController
 public class ProductController {
@@ -16,13 +19,20 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    List<ProductRecord> getProducts() {
-        return productService.getAllProducts();
+    List<ProductResponseDto> getProducts() {
+        return productService.getAllProducts().stream()
+            .map(ProductMapper::toResponse)
+            .toList();
     }
 
     @PostMapping("/product")
-    void saveProduct(@RequestBody ProductRequestDto productRequestDto) {
-        productService.saveProduct(productRequestDto);
+    ProductResponseDto saveProduct(@RequestBody ProductRequestDto productRequestDto) {
+        return toResponse(productService.addProduct(productRequestDto));
+    }
+
+    @PutMapping("/product/{id}")
+    void updateProduct(@PathVariable Long id, @RequestBody ProductRequestDto productRequestDto) {
+        productService.updateProduct(id, productRequestDto);
     }
 
     @DeleteMapping("/product/{id}")

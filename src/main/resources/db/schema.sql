@@ -1,4 +1,4 @@
 CREATE TABLE product_table (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(500) NOT NULL
 );
