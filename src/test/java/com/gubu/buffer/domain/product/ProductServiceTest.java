@@ -4,7 +4,7 @@ import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.ProductRecord;
 import com.gubu.buffer.infrastructure.database.postgreql.ProductEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.ProductRepository;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -18,11 +18,11 @@ import static org.mockito.Mockito.when;
 
 class ProductServiceTest {
 
-    private static ProductRepository productRepository;
-    private static ProductService productService;
+    private ProductRepository productRepository;
+    private ProductService productService;
 
-    @BeforeAll
-    static void setup() {
+    @BeforeEach
+    void setup() {
         productRepository = Mockito.mock(ProductRepository.class);
         productService = new ProductService(productRepository);
     }
