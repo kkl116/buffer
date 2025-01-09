@@ -25,6 +25,13 @@ public class ProductController {
             .toList();
     }
 
+    @GetMapping("/product/{id}")
+    ProductResponseDto getProduct(@PathVariable Long id) {
+        return productService.getProductById(id)
+            .map(ProductMapper::toResponse)
+            .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", id)));
+    }
+
     @PostMapping("/product")
     ProductResponseDto saveProduct(@RequestBody ProductRequestDto productRequestDto) {
         return toResponse(productService.addProduct(productRequestDto));

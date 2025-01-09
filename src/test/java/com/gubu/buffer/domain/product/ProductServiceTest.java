@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -73,6 +73,33 @@ class ProductServiceTest {
         assertEquals("dummy1", productRecords.getFirst().name());
         assertEquals(2, productRecords.get(1).id());
         assertEquals("dummy2", productRecords.get(1).name());
+    }
+
+    @Test
+    void shouldGetProductById() {
+        //Given
+        Long productId = 1L;
+        ProductEntity productEntity = ProductEntity.builder().id(productId).name("dummy").build();
+        when(productRepository.findById(productId)).thenReturn(Optional.of(productEntity));
+
+        //When
+        Optional<ProductRecord> productRecord = productService.getProductById(productId);
+
+        //Then
+        assertTrue(productRecord.isPresent());
+        assertEquals(productId, productRecord.get().id());
+        assertEquals("dummy", productRecord.get().name());
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalIfProductNotFound() {
+        //Given
+        Long productId = 1L;
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        //When & Then
+        Optional<ProductRecord> productRecord = productService.getProductById(productId);
+        assertTrue(productRecord.isEmpty());
     }
 
     @Test

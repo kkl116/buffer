@@ -7,6 +7,7 @@ import com.gubu.buffer.infrastructure.database.postgreql.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.gubu.buffer.domain.product.ProductMapper.toEntity;
 import static com.gubu.buffer.domain.product.ProductMapper.toRecord;
@@ -41,5 +42,10 @@ public class ProductService {
         return this.productRepository.findAll().stream()
             .map(ProductMapper::toRecord)
             .toList();
+    }
+
+    public Optional<ProductRecord> getProductById(Long id) {
+        return this.productRepository.findById(id)
+            .map(ProductMapper::toRecord);
     }
 }
