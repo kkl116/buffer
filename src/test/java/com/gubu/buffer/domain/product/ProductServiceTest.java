@@ -1,14 +1,17 @@
 package com.gubu.buffer.domain.product;
 
+import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.infrastructure.database.postgreql.product.ProductEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.ProductRepository;
+import com.gubu.buffer.infrastructure.database.postgreql.product.cost.ProductCostEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.cost.ProductCostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,5 +124,54 @@ class ProductServiceTest {
         Mockito.verify(productRepository).save(captor.capture());
         ProductEntity capturedProduct = captor.getValue();
         assertEquals("new", capturedProduct.getName());
+    }
+
+    @Test
+    void shouldAddProductCost() {
+        //Given
+        Long productId = 1L;
+        ProductEntity savedEntity = ProductEntity.builder()
+            .id(productId)
+            .name("dummy")
+            .productCosts(new ArrayList<>())
+            .build();
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(savedEntity));
+
+        ArgumentCaptor<ProductEntity> captor = ArgumentCaptor.forClass(ProductEntity.class);
+        ProductCostRequestDto productCostRequestDto = new ProductCostRequestDto("dummy cost", 100.0);
+
+        //When
+        productService.addProductCost(productId, productCostRequestDto);
+
+        //Then
+        Mockito.verify(productRepository).save(captor.capture());
+        ProductEntity capturedProduct = captor.getValue();
+        assertEquals("dummy cost", capturedProduct.getProductCosts().getFirst().getName());
+        assertEquals(100.0, capturedProduct.getProductCosts().getFirst().getPrice());
+    }
+
+    @Test
+    void shouldUpdateProductCost() {
+        //Given
+        Long productCostId = 1L;
+        ProductCostEntity savedEntity = ProductCostEntity.builder()
+           .id(productCostId)
+           .name("dummy")
+           .build();
+
+        when(productCostRepository.findById(productCostId)).thenReturn(Optional.of(savedEntity));
+
+        ArgumentCaptor<ProductCostEntity> captor = ArgumentCaptor.forClass(ProductCostEntity.class);
+        ProductCostRequestDto productCostRequestDto = new ProductCostRequestDto("new cost", 200.0);
+
+        //When
+        productService.updateProductCost(productCostId, productCostRequestDto);
+
+        //Then
+        Mockito.verify(productCostRepository).save(captor.capture());
+        ProductCostEntity capturedProductCost = captor.getValue();
+        assertEquals("new cost", capturedProductCost.getName());
+        assertEquals(200.0, capturedProductCost.getPrice());
     }
 }
