@@ -2,8 +2,8 @@ package com.gubu.buffer.domain.product;
 
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.ProductRecord;
-import com.gubu.buffer.infrastructure.database.postgreql.ProductEntity;
-import com.gubu.buffer.infrastructure.database.postgreql.ProductRepository;
+import com.gubu.buffer.infrastructure.database.postgreql.product.ProductEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.gubu.buffer.infrastructure.database.postgreql;
+package com.gubu.buffer.infrastructure.database.postgreql.product;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

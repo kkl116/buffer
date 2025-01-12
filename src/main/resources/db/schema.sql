@@ -1,4 +1,0 @@
-CREATE TABLE product_table (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(500) NOT NULL
-);

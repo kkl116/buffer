@@ -20,6 +20,7 @@ public class ProductController {
 
     @GetMapping("/products")
     List<ProductResponseDto> getProducts() {
+        //TODO: Return responseEntity to include status codes etc.
         return productService.getAllProducts().stream()
             .map(ProductMapper::toResponse)
             .toList();
@@ -37,7 +38,7 @@ public class ProductController {
         return toResponse(productService.addProduct(productRequestDto));
     }
 
-    @PutMapping("/product/{id}")
+    @PatchMapping("/product/{id}")
     void updateProduct(@PathVariable Long id, @RequestBody ProductRequestDto productRequestDto) {
         productService.updateProduct(id, productRequestDto);
     }
