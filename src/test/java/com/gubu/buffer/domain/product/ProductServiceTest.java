@@ -1,9 +1,9 @@
 package com.gubu.buffer.domain.product;
 
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
-import com.gubu.buffer.domain.model.ProductRecord;
 import com.gubu.buffer.infrastructure.database.postgreql.product.ProductEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.ProductRepository;
+import com.gubu.buffer.infrastructure.database.postgreql.product.cost.ProductCostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -20,11 +20,13 @@ class ProductServiceTest {
 
     private ProductRepository productRepository;
     private ProductService productService;
+    private ProductCostRepository productCostRepository;
 
     @BeforeEach
     void setup() {
         productRepository = Mockito.mock(ProductRepository.class);
-        productService = new ProductService(productRepository);
+        productCostRepository = Mockito.mock(ProductCostRepository.class);
+        productService = new ProductService(productRepository, productCostRepository);
     }
 
     @Test
@@ -41,14 +43,14 @@ class ProductServiceTest {
 
         //Then
         Mockito.verify(productRepository).save(captor.capture());
-        ProductEntity capturedProductEntity = captor.getValue();
-        assert capturedProductEntity.getName().equals("dummy");
+        ProductEntity capturedProduct = captor.getValue();
+        assert capturedProduct.getName().equals("dummy");
     }
 
     @Test
     void shouldDeleteProduct() {
         //Given
-        Long productId = 1L;
+        long productId = 1L;
 
         //When
         productService.deleteProduct(productId);
@@ -60,35 +62,35 @@ class ProductServiceTest {
     @Test
     void shouldGetAllProducts() {
         //Given
-        ProductEntity productEntity1 = ProductEntity.builder().id(1L).name("dummy1").build();
-        ProductEntity productEntity2 = ProductEntity.builder().id(2L).name("dummy2").build();
-        when(productRepository.findAll()).thenReturn(List.of(productEntity1, productEntity2));
+        ProductEntity product1 = ProductEntity.builder().id(1L).name("dummy1").build();
+        ProductEntity product2 = ProductEntity.builder().id(2L).name("dummy2").build();
+        when(productRepository.findAll()).thenReturn(List.of(product1, product2));
 
         //When
-        List<ProductRecord> productRecords = productService.getAllProducts();
+        List<ProductEntity> productEntities = productService.getAllProducts();
 
         //Then
-        assertEquals(2, productRecords.size());
-        assertEquals(1, productRecords.getFirst().id());
-        assertEquals("dummy1", productRecords.getFirst().name());
-        assertEquals(2, productRecords.get(1).id());
-        assertEquals("dummy2", productRecords.get(1).name());
+        assertEquals(2, productEntities.size());
+        assertEquals(1, productEntities.getFirst().getId());
+        assertEquals("dummy1", productEntities.getFirst().getName());
+        assertEquals(2, productEntities.get(1).getId());
+        assertEquals("dummy2", productEntities.get(1).getName());
     }
 
     @Test
     void shouldGetProductById() {
         //Given
         Long productId = 1L;
-        ProductEntity productEntity = ProductEntity.builder().id(productId).name("dummy").build();
-        when(productRepository.findById(productId)).thenReturn(Optional.of(productEntity));
+        ProductEntity savedEntity = ProductEntity.builder().id(productId).name("dummy").build();
+        when(productRepository.findById(productId)).thenReturn(Optional.of(savedEntity));
 
         //When
-        Optional<ProductRecord> productRecord = productService.getProductById(productId);
+        Optional<ProductEntity> productEntity = productService.getProductById(productId);
 
         //Then
-        assertTrue(productRecord.isPresent());
-        assertEquals(productId, productRecord.get().id());
-        assertEquals("dummy", productRecord.get().name());
+        assertTrue(productEntity.isPresent());
+        assertEquals(productId, productEntity.get().getId());
+        assertEquals("dummy", productEntity.get().getName());
     }
 
     @Test
@@ -98,8 +100,8 @@ class ProductServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
         //When & Then
-        Optional<ProductRecord> productRecord = productService.getProductById(productId);
-        assertTrue(productRecord.isEmpty());
+        Optional<ProductEntity> productEntity = productService.getProductById(productId);
+        assertTrue(productEntity.isEmpty());
     }
 
     @Test
@@ -117,7 +119,7 @@ class ProductServiceTest {
 
         //Then
         Mockito.verify(productRepository).save(captor.capture());
-        ProductEntity capturedProductEntity = captor.getValue();
-        assertEquals("new", capturedProductEntity.getName());
+        ProductEntity capturedProduct = captor.getValue();
+        assertEquals("new", capturedProduct.getName());
     }
 }
