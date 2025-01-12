@@ -3,9 +3,11 @@ import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.application.dto.response.ProductResponseDto;
 import com.gubu.buffer.domain.product.ProductMapper;
 import com.gubu.buffer.domain.product.ProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.gubu.buffer.domain.product.ProductMapper.toResponse;
 
@@ -19,32 +21,38 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    List<ProductResponseDto> getProducts() {
-        //TODO: Return responseEntity to include status codes etc.
-        return productService.getAllProducts().stream()
+    ResponseEntity<List<ProductResponseDto>> getProducts() {
+        List<ProductResponseDto> products = productService.getAllProducts().stream()
             .map(ProductMapper::toResponse)
             .toList();
+
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/product/{id}")
-    ProductResponseDto getProduct(@PathVariable Long id) {
+    ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long id) {
         return productService.getProductById(id)
             .map(ProductMapper::toResponse)
-            .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", id)));
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/product")
-    ProductResponseDto saveProduct(@RequestBody ProductRequestDto productRequestDto) {
-        return toResponse(productService.addProduct(productRequestDto));
+    ResponseEntity<ProductResponseDto> saveProduct(@RequestBody ProductRequestDto productRequestDto) {
+        ProductResponseDto productResponseDto = toResponse(productService.addProduct(productRequestDto));
+        return ResponseEntity.ok(productResponseDto);
+
     }
 
     @PatchMapping("/product/{id}")
-    void updateProduct(@PathVariable Long id, @RequestBody ProductRequestDto productRequestDto) {
+    ResponseEntity<Void> updateProduct(@PathVariable Long id, @RequestBody ProductRequestDto productRequestDto) {
         productService.updateProduct(id, productRequestDto);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/product/{id}")
-    void deleteProduct(@PathVariable Long id) {
+    ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return ResponseEntity.ok().build();
     }
 }
