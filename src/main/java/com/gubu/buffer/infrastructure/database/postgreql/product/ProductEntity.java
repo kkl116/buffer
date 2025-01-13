@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,13 +31,14 @@ public class ProductEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Builder.Default
     @OneToMany(
         fetch = FetchType.LAZY,
         mappedBy = "product",
         orphanRemoval = true,
         cascade = CascadeType.ALL
     )
-    private List<ProductCostEntity> productCosts;
+    private List<ProductCostEntity> productCosts = new ArrayList<>();
 
     @OneToOne(
         mappedBy = "product",

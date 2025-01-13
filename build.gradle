@@ -16,11 +16,41 @@ java {
     sourceCompatibility = "21"
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
 
+    integrationTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+
+        java {
+            srcDirs = ['src/integrationTest/java']
+        }
+        resources {
+            srcDirs = ['src/integrationTest/resources']
+        }
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom implementation
+    integrationTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+ext {
+    springBootBom = "org.springframework.boot:spring-boot-dependencies:3.4.1"
+}
 
 dependencies {
     //implementation dependencies
-    implementation platform('org.springframework.boot:spring-boot-dependencies:3.4.1') //spring boot bom
+    implementation platform(springBootBom) //spring boot bom
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -30,11 +60,34 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'org.mockito:mockito-core:5.14.2'
-    testImplementation 'org.testcontainers:postgresql:1.20.4'
+    testImplementation 'org.mockito:mockito-core:5.15.2'
 
+    //integrationTest implementations
+    integrationTestImplementation platform(springBootBom) //spring boot bom
+    integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
+    integrationTestImplementation 'org.testcontainers:postgresql:1.20.4'
+    integrationTestImplementation "org.testcontainers:junit-jupiter:1.20.4"
 }
 
 test {
     useJUnitPlatform()
+}
+
+tasks.register('integrationTest', Test) {
+    useJUnitPlatform()
+    description = 'Run integration tests.'
+    group = 'verification'
+    shouldRunAfter test
+
+    // Enable detailed logging for integration tests
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath + sourceSets.main.output.classesDirs
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('integrationTest')
 }
