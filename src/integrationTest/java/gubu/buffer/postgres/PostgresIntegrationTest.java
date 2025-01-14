@@ -2,7 +2,7 @@ package gubu.buffer.postgres;
 
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
 import com.gubu.buffer.domain.product.ProductService;
-import com.gubu.buffer.infrastructure.database.postgreql.product.ProductEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
 import gubu.buffer.AbstractIntegrationTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;

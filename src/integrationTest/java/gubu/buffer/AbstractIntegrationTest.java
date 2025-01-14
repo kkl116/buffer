@@ -1,9 +1,9 @@
 package gubu.buffer;
 
 import com.gubu.buffer.Buffer;
-import com.gubu.buffer.infrastructure.database.postgreql.product.ProductRepository;
-import com.gubu.buffer.infrastructure.database.postgreql.product.cost.ProductCostRepository;
-import com.gubu.buffer.infrastructure.database.postgreql.product.dimension.ProductDimensionRepository;
+import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductDimensionRepository;
+import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductCostRepository;
+import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

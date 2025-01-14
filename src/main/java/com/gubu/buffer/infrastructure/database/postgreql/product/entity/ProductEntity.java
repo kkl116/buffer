@@ -1,7 +1,5 @@
-package com.gubu.buffer.infrastructure.database.postgreql.product;
+package com.gubu.buffer.infrastructure.database.postgreql.product.entity;
 
-import com.gubu.buffer.infrastructure.database.postgreql.product.cost.ProductCostEntity;
-import com.gubu.buffer.infrastructure.database.postgreql.product.dimension.ProductDimensionEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +19,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class ProductEntity {
 
-    protected ProductEntity() { /*For JPA */ }
+    public ProductEntity() { /*For JPA */ }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

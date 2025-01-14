@@ -1,6 +1,5 @@
-package com.gubu.buffer.infrastructure.database.postgreql.product.dimension;
+package com.gubu.buffer.infrastructure.database.postgreql.product.entity;
 
-import com.gubu.buffer.infrastructure.database.postgreql.product.ProductEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -8,27 +7,26 @@ import org.hibernate.proxy.HibernateProxy;
 import java.util.Objects;
 
 @Entity
-@Table(name = "product_dimensions")
+@Table(name = "product_costs")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
-public class ProductDimensionEntity {
+public class ProductCostEntity {
 
-    public ProductDimensionEntity() { /*For JPA */ }
+    public ProductCostEntity() { /*For JPA */ }
 
     @Id
-    @Column(name = "product_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double height;
+    @Column(nullable = false)
+    private String name;
 
-    private Double width;
+    @Column(nullable = false)
+    private Double price;
 
-    private Double depth;
-
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private ProductEntity product;
 
@@ -49,13 +47,13 @@ public class ProductDimensionEntity {
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
         }
-        ProductDimensionEntity that = (ProductDimensionEntity) o;
+        ProductCostEntity that = (ProductCostEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy ?hibernateProxy.getHibernateLazyInitializer()
             .getPersistentClass()
             .hashCode() : getClass().hashCode();
     }
