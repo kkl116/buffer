@@ -8,11 +8,12 @@ spring:
     init:
       mode: always
       data-locations: classpath:db/data.sql
+      schema-locations: classpath:db/schema.sql
 
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: drop
     properties:
       hibernate:
         #show_sql: true

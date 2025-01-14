@@ -28,6 +28,7 @@ public class ProductDimensionEntity {
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
     private ProductEntity product;
 
     @Override
