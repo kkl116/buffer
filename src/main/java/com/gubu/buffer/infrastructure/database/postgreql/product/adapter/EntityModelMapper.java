@@ -10,16 +10,15 @@ public class EntityModelMapper {
     private EntityModelMapper() {}
 
     protected static ProductEntity toEntity(Product product) {
+        //should only update things that come in from request dto
         return ProductEntity.builder()
-            .id(product.getId())
             .name(product.getName())
-            .productCosts(product.getProductCosts().stream().map(EntityModelMapper::toEntity).toList())
             .build();
     }
 
     protected static ProductCostEntity toEntity(ProductCost productCost) {
+        //should only update things that come in from request dto
         return ProductCostEntity.builder()
-            .id(productCost.getId())
             .name(productCost.getName())
             .price(productCost.getPrice())
             .build();
