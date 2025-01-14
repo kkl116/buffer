@@ -18,6 +18,7 @@ public class ProductDimensionEntity {
     public ProductDimensionEntity() { /*For JPA */ }
 
     @Id
+    @Column(name = "product_id")
     private Long id;
 
     private Double height;
@@ -28,7 +29,7 @@ public class ProductDimensionEntity {
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "product_id")
     private ProductEntity product;
 
     @Override

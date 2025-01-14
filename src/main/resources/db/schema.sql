@@ -11,7 +11,6 @@ CREATE TABLE product_costs (
 );
 
 CREATE TABLE product_dimensions (
-    id BIGINT PRIMARY KEY,
     height DECIMAL(10, 2) NOT NULL,
     width DECIMAL(10, 2) NOT NULL,
     depth DECIMAL(10, 2) NOT NULL,

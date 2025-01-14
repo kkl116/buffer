@@ -45,6 +45,7 @@ public class ProductEntity {
         orphanRemoval = true,
         cascade = CascadeType.ALL
     )
+    @PrimaryKeyJoinColumn
     private ProductDimensionEntity productDimension;
 
     @Override
