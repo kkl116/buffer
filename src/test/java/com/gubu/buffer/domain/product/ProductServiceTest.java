@@ -11,142 +11,126 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
-    private ProductRepository productRepository;
+    private static final ProductRepository productRepository = Mockito.mock(ProductRepository.class);
+    private static final ProductCostRepository productCostRepository = Mockito.mock(ProductCostRepository.class);
     private ProductService productService;
-    private ProductCostRepository productCostRepository;
 
     @BeforeEach
     void setup() {
-        productRepository = Mockito.mock(ProductRepository.class);
-        productCostRepository = Mockito.mock(ProductCostRepository.class);
         productService = new ProductService(productRepository, productCostRepository);
+
+        //clear mock interactions
+        Mockito.reset(productRepository);
+        Mockito.reset(productCostRepository);
     }
 
     @Test
     void shouldAddProduct() {
         //Given
-        when(productRepository.save(any(ProductEntity.class)))
-            .thenReturn(ProductEntity.builder().id(1L).name("dummy").build());
+        when(productRepository.save(any(ProductEntity.class))).thenReturn(productEntity1());
 
-        ArgumentCaptor<ProductEntity> captor = ArgumentCaptor.forClass(ProductEntity.class);
-        ProductRequestDto productRequestDto = new ProductRequestDto("dummy");
+        var captor = ArgumentCaptor.forClass(ProductEntity.class);
+        var productRequestDto = new ProductRequestDto("dummy");
 
         //When
         productService.addProduct(productRequestDto);
 
         //Then
-        Mockito.verify(productRepository).save(captor.capture());
-        ProductEntity capturedProduct = captor.getValue();
+        verify(productRepository, times(1)).save(captor.capture());
+        var capturedProduct = captor.getValue();
         assert capturedProduct.getName().equals("dummy");
     }
 
     @Test
     void shouldDeleteProduct() {
-        //Given
-        long productId = 1L;
-
         //When
-        productService.deleteProduct(productId);
+        productService.deleteProduct(1L);
 
         //Then
-        Mockito.verify(productRepository).deleteById(productId);
+        verify(productRepository, times(1)).deleteById(1L);
     }
 
     @Test
     void shouldGetAllProducts() {
         //Given
-        ProductEntity product1 = ProductEntity.builder().id(1L).name("dummy1").build();
-        ProductEntity product2 = ProductEntity.builder().id(2L).name("dummy2").build();
-        when(productRepository.findAll()).thenReturn(List.of(product1, product2));
+        when(productRepository.findAll()).thenReturn(List.of(productEntity1(), productEntity2()));
 
         //When
-        List<ProductEntity> productEntities = productService.getAllProducts();
+        var productEntities = productService.getAllProducts();
 
         //Then
         assertEquals(2, productEntities.size());
         assertEquals(1, productEntities.getFirst().getId());
-        assertEquals("dummy1", productEntities.getFirst().getName());
+        assertEquals("product 1", productEntities.getFirst().getName());
         assertEquals(2, productEntities.get(1).getId());
-        assertEquals("dummy2", productEntities.get(1).getName());
+        assertEquals("product 2", productEntities.get(1).getName());
     }
 
     @Test
     void shouldGetProductById() {
         //Given
-        Long productId = 1L;
-        ProductEntity savedEntity = ProductEntity.builder().id(productId).name("dummy").build();
-        when(productRepository.findById(productId)).thenReturn(Optional.of(savedEntity));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1()));
 
         //When
-        Optional<ProductEntity> productEntity = productService.getProductById(productId);
+        var productEntity = productService.getProductById(1L);
 
         //Then
         assertTrue(productEntity.isPresent());
-        assertEquals(productId, productEntity.get().getId());
-        assertEquals("dummy", productEntity.get().getName());
+        assertEquals(1L, productEntity.get().getId());
+        assertEquals("product 1", productEntity.get().getName());
     }
 
     @Test
     void shouldReturnEmptyOptionalIfProductNotFound() {
         //Given
-        Long productId = 1L;
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         //When & Then
-        Optional<ProductEntity> productEntity = productService.getProductById(productId);
+        var productEntity = productService.getProductById(1L);
         assertTrue(productEntity.isEmpty());
     }
 
     @Test
     void shouldUpdateProduct() {
         //Given
-        Long productId = 1L;
-        ProductEntity entity = ProductEntity.builder().id(productId).name("old").build();
-        when(productRepository.findById(productId)).thenReturn(Optional.of(entity));
+        //create a different product - or else pollutes the other tests
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1()));
 
-        ArgumentCaptor<ProductEntity> captor = ArgumentCaptor.forClass(ProductEntity.class);
-        ProductRequestDto productRequestDto = new ProductRequestDto("new");
+        var captor = ArgumentCaptor.forClass(ProductEntity.class);
+        var productRequestDto = new ProductRequestDto("new");
 
         //When
-        productService.updateProduct(productId, productRequestDto);
+        productService.updateProduct(1L, productRequestDto);
 
         //Then
-        Mockito.verify(productRepository).save(captor.capture());
-        ProductEntity capturedProduct = captor.getValue();
+        verify(productRepository, times(1)).save(captor.capture());
+        var capturedProduct = captor.getValue();
         assertEquals("new", capturedProduct.getName());
     }
 
     @Test
     void shouldAddProductCost() {
         //Given
-        Long productId = 1L;
-        ProductEntity savedEntity = ProductEntity.builder()
-            .id(productId)
-            .name("dummy")
-            .productCosts(new ArrayList<>())
-            .build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1()));
 
-        when(productRepository.findById(productId)).thenReturn(Optional.of(savedEntity));
-
-        ArgumentCaptor<ProductCostEntity> captor = ArgumentCaptor.forClass(ProductCostEntity.class);
-        ProductCostRequestDto productCostRequestDto = new ProductCostRequestDto("dummy cost", 100.0);
+        var captor = ArgumentCaptor.forClass(ProductCostEntity.class);
+        var productCostRequestDto = new ProductCostRequestDto("dummy cost", 100.0);
 
         //When
-        productService.addProductCost(productId, productCostRequestDto);
+        productService.addProductCost(1L, productCostRequestDto);
 
         //Then
-        Mockito.verify(productCostRepository).save(captor.capture());
-        ProductCostEntity capturedProduct = captor.getValue();
+        verify(productCostRepository, times(1)).save(captor.capture());
+        var capturedProduct = captor.getValue();
         assertEquals(1L, capturedProduct.getProduct().getId());
         assertEquals("dummy cost", capturedProduct.getName());
         assertEquals(100.0, capturedProduct.getPrice());
@@ -155,24 +139,53 @@ class ProductServiceTest {
     @Test
     void shouldUpdateProductCost() {
         //Given
-        Long productCostId = 1L;
-        ProductCostEntity savedEntity = ProductCostEntity.builder()
-           .id(productCostId)
-           .name("dummy")
-           .build();
+        when(productCostRepository.findById(1L)).thenReturn(Optional.of(productCostEntity1()));
 
-        when(productCostRepository.findById(productCostId)).thenReturn(Optional.of(savedEntity));
-
-        ArgumentCaptor<ProductCostEntity> captor = ArgumentCaptor.forClass(ProductCostEntity.class);
-        ProductCostRequestDto productCostRequestDto = new ProductCostRequestDto("new cost", 200.0);
+        var captor = ArgumentCaptor.forClass(ProductCostEntity.class);
+        var productCostRequestDto = new ProductCostRequestDto("new cost", 200.0);
 
         //When
-        productService.updateProductCost(productCostId, productCostRequestDto);
+        productService.updateProductCost(1L, productCostRequestDto);
 
         //Then
-        Mockito.verify(productCostRepository).save(captor.capture());
-        ProductCostEntity capturedProductCost = captor.getValue();
+        verify(productCostRepository, times(1)).save(captor.capture());
+        var capturedProductCost = captor.getValue();
         assertEquals("new cost", capturedProductCost.getName());
         assertEquals(200.0, capturedProductCost.getPrice());
+    }
+
+    @Test
+    void shouldDeleteProductCost() {
+        //Given
+        var productCostId = 1L;
+        when(productCostRepository.findById(productCostId)).thenReturn(Optional.of(productCostEntity1()));
+
+        //When
+        productService.deleteProductCost(productCostId);
+
+        //Then
+        verify(productCostRepository, times(1)).deleteById(productCostId);
+    }
+
+    private ProductEntity productEntity1() {
+        return ProductEntity.builder()
+            .id(1L)
+            .name("product 1")
+            .build();
+    }
+
+    private ProductEntity productEntity2() {
+        return ProductEntity.builder()
+            .id(2L)
+            .name("product 2")
+            .build();
+    }
+
+    private ProductCostEntity productCostEntity1() {
+        return ProductCostEntity.builder()
+            .id(1L)
+            .name("product cost 1")
+            .product(productEntity1())
+            .build();
     }
 }

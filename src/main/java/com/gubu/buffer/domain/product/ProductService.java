@@ -29,7 +29,7 @@ public class ProductService {
     }
 
     public ProductEntity addProduct(ProductRequestDto productRequestDto) {
-        ProductEntity entity = toEntity(productRequestDto);
+        var entity = toEntity(productRequestDto);
         return this.productRepository.save(entity);
     }
 
@@ -38,7 +38,7 @@ public class ProductService {
     }
 
     public void updateProduct(Long id, ProductRequestDto productRequestDto) {
-        ProductEntity entity = productRepository.findById(id)
+        var entity = productRepository.findById(id)
             .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", id)));
 
         entity.setName(productRequestDto.name());
@@ -55,10 +55,10 @@ public class ProductService {
 
     @Transactional
     public ProductCostEntity addProductCost(Long productId, ProductCostRequestDto productCostRequestDto) {
-        ProductEntity product = productRepository.findById(productId)
+        var product = productRepository.findById(productId)
             .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", productId)));
 
-        ProductCostEntity productCostEntity = ProductCostEntity.builder()
+        var productCostEntity = ProductCostEntity.builder()
             .name(productCostRequestDto.name())
             .price(productCostRequestDto.price())
             .build();
@@ -73,7 +73,7 @@ public class ProductService {
     }
 
     public void updateProductCost(Long costId, ProductCostRequestDto productCostRequestDto) {
-        ProductCostEntity productCostEntity = productCostRepository.findById(costId)
+        var productCostEntity = productCostRepository.findById(costId)
            .orElseThrow(() -> new RuntimeException(String.format("Product cost id %s not found", costId)));
 
         if (productCostRequestDto.name() != null) {
@@ -85,5 +85,15 @@ public class ProductService {
         }
 
         this.productCostRepository.save(productCostEntity);
+    }
+
+    public void deleteProductCost(Long costId) {
+        var productCost = productCostRepository.findById(costId)
+            .orElseThrow(() -> new RuntimeException(String.format("Product cost id %s not found", costId)));
+
+        var product = productCost.getProduct();
+
+        product.getProductCosts().remove(productCost);
+        productCostRepository.deleteById(costId);
     }
 }

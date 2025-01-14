@@ -75,4 +75,10 @@ public class ProductController {
         productService.updateProductCost(costId, productCostRequestDto);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/product/cost/{costId}")
+    ResponseEntity<Void> deleteProductCost(@PathVariable Long costId) {
+        productService.deleteProductCost(costId);
+        return ResponseEntity.ok().build();
+    }
 }

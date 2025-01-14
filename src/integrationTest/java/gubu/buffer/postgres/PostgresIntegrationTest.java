@@ -8,59 +8,90 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
+    private static final String PRODUCT_NAME = "Product 1";
+    private static final String PRODUCT_COST_NAME = "paper";
+    private static final Double PRODUCT_COST_PRICE = 10.00;
+
     @Autowired
     private ProductService productService;
-
-    private static final ProductEntity PRODUCT_1 = ProductEntity.builder()
-        .name("Product 1")
-        .build();
 
     @Test
     void shouldAddProductCostSuccessfully() {
         //Given
-        productRepository.save(PRODUCT_1);
-
+        var productId = persistProduct();
         var productCostRequestDto = new ProductCostRequestDto("paper", 20.00);
         //When
-        var returnedProductCost = productService.addProductCost(1L, productCostRequestDto);
+        var returnedProductCost = productService.addProductCost(productId, productCostRequestDto);
 
         //Then
-        var fetchedProduct = productRepository.findById(1L);
+        var fetchedProduct = productRepository.findById(productId);
         var productCost = fetchedProduct.get().getProductCosts().getFirst();
         assertEquals("paper", productCost.getName());
         assertEquals(20.00, productCost.getPrice());
 
         var fetchedProductCost = productCostRepository.findById(productCost.getId());
-        assertEquals(1L, fetchedProductCost.get().getProduct().getId());
-        assertEquals(1L, fetchedProductCost.get().getId());
+        assertEquals(productId, fetchedProductCost.get().getProduct().getId());
 
         //returnedProductCost should have the generated id
-        assertEquals(1L, returnedProductCost.getId());
+        assertNotNull(returnedProductCost.getId());
     }
 
     @Test
     void shouldUpdateProductCostSuccessfully() {
         //Given
-        productRepository.save(PRODUCT_1);
-        var savedProductCostRequestDto = new ProductCostRequestDto("old-paper", 10.00);
-        productService.addProductCost(1L, savedProductCostRequestDto);
+        var productId = persistProduct();
+        var costId = persistProductCost(productId);
 
         var newProductCostRequestDto = new ProductCostRequestDto("new-paper", 20.00);
         //When
-        productService.updateProductCost(1L, newProductCostRequestDto);
+        productService.updateProductCost(costId, newProductCostRequestDto);
 
         //Then
-        var fetchedProductCost = productCostRepository.findById(1L);
+        var fetchedProductCost = productCostRepository.findById(costId);
         assertEquals("new-paper", fetchedProductCost.get().getName());
         assertEquals(20.00, fetchedProductCost.get().getPrice());
 
-        var fetchedProduct = productRepository.findById(1L);
+        var fetchedProduct = productRepository.findById(productId);
         assertEquals("new-paper", fetchedProduct.get().getProductCosts().getFirst().getName());
         assertEquals(20.00, fetchedProduct.get().getProductCosts().getFirst().getPrice());
+    }
+
+    @Test
+    void shouldDeleteProductCostSuccessfully() {
+        //Given
+        var productId = persistProduct();
+        persistProductCost(productId);
+
+        //When
+        productService.deleteProductCost(1L);
+
+        //Then
+        var fetchedProductCost = productCostRepository.findById(1L);
+        assertTrue(fetchedProductCost.isEmpty());
+
+        var fetchedProduct = productRepository.findById(1L);
+        assertEquals(0, fetchedProduct.get().getProductCosts().size());
+    }
+
+    private Long persistProduct() {
+        var product = ProductEntity.builder()
+            .name(PRODUCT_NAME)
+            .build();
+
+        productRepository.save(product);
+
+        return product.getId();
+    }
+
+    private Long persistProductCost(Long productId) {
+        var savedProductCostRequestDto = new ProductCostRequestDto(PRODUCT_COST_NAME, PRODUCT_COST_PRICE);
+        var productCostEntity = productService.addProductCost(productId, savedProductCostRequestDto);
+
+        return productCostEntity.getId();
     }
 }
