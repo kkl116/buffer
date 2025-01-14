@@ -3,15 +3,14 @@ import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.application.dto.response.ProductCostResponseDto;
 import com.gubu.buffer.application.dto.response.ProductResponseDto;
-import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
 import com.gubu.buffer.domain.product.ProductService;
-import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductCostEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.gubu.buffer.application.ResponseMapper.toResponse;
 
 @RestController
 public class ProductController {
@@ -25,7 +24,7 @@ public class ProductController {
     @GetMapping("/products")
     ResponseEntity<List<ProductResponseDto>> getProducts() {
         List<ProductResponseDto> products = productService.getAllProducts().stream()
-            .map(this::toResponse)
+            .map(ResponseMapper::toResponse)
             .toList();
 
         return ResponseEntity.ok(products);
@@ -34,7 +33,7 @@ public class ProductController {
     @GetMapping("/product/{productId}")
     ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
         return productService.getProductById(productId)
-            .map(this::toResponse)
+            .map(ResponseMapper::toResponse)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -80,18 +79,5 @@ public class ProductController {
     ResponseEntity<Void> deleteProductCost(@PathVariable Long costId) {
         productService.deleteProductCost(costId);
         return ResponseEntity.ok().build();
-    }
-
-    private ProductResponseDto toResponse(Product product) {
-        return ProductResponseDto.builder()
-            .id(product.getId())
-            .name(product.getName())
-            .build();
-    }
-
-    private ProductCostResponseDto toResponse(ProductCost productCost) {
-        return ProductCostResponseDto.builder()
-            .id(productCost.getId())
-            .build();
     }
 }
