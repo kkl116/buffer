@@ -30,20 +30,23 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
         var productCostRequestDto = new ProductCostRequestDto("paper", 20.00);
         //When
-        productService.addProductCost(productId, productCostRequestDto);
+        var returnedProductCost = productService.addProductCost(productId, productCostRequestDto);
 
         //Then
         //product should contain new cost entity
         var fetchedProduct = productRepository.findById(productId);
         assertThat(fetchedProduct.isPresent()).isTrue();
-        assertEquals(1, fetchedProduct.get().getProductCosts().size());
         var productCost = fetchedProduct.get().getProductCosts().getFirst();
         assertEquals("paper", productCost.getName());
         assertEquals(20.00, productCost.getPrice());
 
         //check cost should contain product entity
-        var fetchedCost = productCostRepository.findById(productCost.getId());
-        assertThat(fetchedCost.isPresent()).isTrue();
-        assertEquals(productId, fetchedCost.get().getProduct().getId());
+        var fetchedProductCost = productCostRepository.findById(productCost.getId());
+        assertThat(fetchedProductCost.isPresent()).isTrue();
+        assertEquals(productId, fetchedProductCost.get().getProduct().getId());
+        assertEquals(1L, fetchedProductCost.get().getId());
+
+        //returnedProductCost should have the generated id
+        assertEquals(1L, returnedProductCost.getId());
     }
 }

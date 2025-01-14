@@ -64,12 +64,11 @@ public class ProductService {
             .build();
 
         //ensure both sides of relation is updated
-        //TODO: test - after adding updates show up in both sides
         product.getProductCosts().add(productCostEntity);
         productCostEntity.setProduct(product);
-        this.productRepository.save(product);
+        //Should persist the owning side of the relationship - the one that has the FK
+        this.productCostRepository.save(productCostEntity);
 
-        //TODO: test - returned entity has the generated Id
         return productCostEntity;
     }
 
