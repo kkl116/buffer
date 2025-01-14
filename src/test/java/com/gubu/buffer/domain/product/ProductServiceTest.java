@@ -138,17 +138,18 @@ class ProductServiceTest {
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(savedEntity));
 
-        ArgumentCaptor<ProductEntity> captor = ArgumentCaptor.forClass(ProductEntity.class);
+        ArgumentCaptor<ProductCostEntity> captor = ArgumentCaptor.forClass(ProductCostEntity.class);
         ProductCostRequestDto productCostRequestDto = new ProductCostRequestDto("dummy cost", 100.0);
 
         //When
         productService.addProductCost(productId, productCostRequestDto);
 
         //Then
-        Mockito.verify(productRepository).save(captor.capture());
-        ProductEntity capturedProduct = captor.getValue();
-        assertEquals("dummy cost", capturedProduct.getProductCosts().getFirst().getName());
-        assertEquals(100.0, capturedProduct.getProductCosts().getFirst().getPrice());
+        Mockito.verify(productCostRepository).save(captor.capture());
+        ProductCostEntity capturedProduct = captor.getValue();
+        assertEquals(1L, capturedProduct.getProduct().getId());
+        assertEquals("dummy cost", capturedProduct.getName());
+        assertEquals(100.0, capturedProduct.getPrice());
     }
 
     @Test
