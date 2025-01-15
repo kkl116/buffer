@@ -12,5 +12,6 @@ import java.util.List;
 public class Product {
     private Long id;
     private String name;
-    private List<ProductCost> productCosts;
+    private List<ProductCost> costs;
+    private ProductDimension dimension;
 }

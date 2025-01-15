@@ -1,6 +1,7 @@
 package gubu.buffer.postgres;
 
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
+import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.domain.product.ProductService;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
 import gubu.buffer.AbstractIntegrationTest;
@@ -76,6 +77,25 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
         var fetchedProduct = productRepository.findById(1L);
         assertEquals(0, fetchedProduct.get().getProductCosts().size());
+    }
+
+    @Test
+    void shouldAddProductDimensionSuccessfully() {
+        //Given
+        var productId = persistProduct();
+        var productDimensionRequestDto = new ProductDimensionRequestDto(1.00, null, null);
+        //When
+        productService.addProductDimension(productId, productDimensionRequestDto);
+
+        //Then
+        var fetchedProduct = productRepository.findById(productId);
+        var productDimension = fetchedProduct.get().getProductDimension();
+        assertEquals(1.00, productDimension.getHeight());
+        assertNull(productDimension.getDepth());
+        assertNull(productDimension.getWidth());
+
+        var fetchedProductDimension = productDimensionRepository.findById(productDimension.getId());
+        assertEquals(productId, fetchedProductDimension.get().getProduct().getId());
     }
 
     private Long persistProduct() {

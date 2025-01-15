@@ -49,9 +49,10 @@ class ProductCostJpaRepositoryAdapterTest {
 
         var captor = ArgumentCaptor.forClass(ProductCostEntity.class);
         //When
-        productCostJpaRepository.save(1L, productCost1());
+        productCostJpaRepository.save(1L, productCost());
 
         //Then
+        verify(productRepository, times(1)).findById(1L);
         verify(productCostRepository, times(1)).save(captor.capture());
         var capturedProductCost = captor.getValue();
         assertEquals(1L, capturedProductCost.getProduct().getId());
@@ -90,7 +91,7 @@ class ProductCostJpaRepositoryAdapterTest {
         var captor = ArgumentCaptor.forClass(ProductCostEntity.class);
 
         //When
-        productCostJpaRepository.update(1L, productCostFromRequest());
+        productCostJpaRepository.update(1L, productCostFromRequestDto());
 
         //Then
         verify(productCostRepository, times(1)).save(captor.capture());

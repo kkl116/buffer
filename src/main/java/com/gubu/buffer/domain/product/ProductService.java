@@ -1,10 +1,11 @@
 package com.gubu.buffer.domain.product;
 
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
+import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
-import jakarta.transaction.Transactional;
+import com.gubu.buffer.domain.model.ProductDimension;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +17,19 @@ public class ProductService {
 
     private final ProductRepositoryAdapter productRepositoryAdapter;
     private final ProductCostRepositoryAdapter productCostRepositoryAdapter;
+    private final ProductDimensionRepositoryAdapter productDimensionRepositoryAdapter;
 
     public ProductService(
         ProductRepositoryAdapter productRepositoryAdapter,
-        ProductCostRepositoryAdapter productCostRepositoryAdapter
+        ProductCostRepositoryAdapter productCostRepositoryAdapter,
+        ProductDimensionRepositoryAdapter productDimensionRepositoryAdapter
     ) {
         this.productRepositoryAdapter = productRepositoryAdapter;
         this.productCostRepositoryAdapter = productCostRepositoryAdapter;
+        this.productDimensionRepositoryAdapter = productDimensionRepositoryAdapter;
     }
 
+    //Product methods
     public Product addProduct(ProductRequestDto productRequestDto) {
         return this.productRepositoryAdapter.save(toModel(productRequestDto));
     }
@@ -45,7 +50,7 @@ public class ProductService {
         return this.productRepositoryAdapter.findById(productId);
     }
 
-    @Transactional
+    //Product cost methods
     public ProductCost addProductCost(Long productId, ProductCostRequestDto productCostRequestDto) {
         return this.productCostRepositoryAdapter.save(productId, toModel(productCostRequestDto));
     }
@@ -58,6 +63,11 @@ public class ProductService {
         this.productCostRepositoryAdapter.deleteById(costId);
     }
 
+    //Product dimension methods
+    public void addProductDimension(Long productId, ProductDimensionRequestDto productDimensionRequestDto) {
+        this.productDimensionRepositoryAdapter.save(productId, toModel(productDimensionRequestDto));
+    }
+
     private static Product toModel(ProductRequestDto productRequestDto) {
         return Product.builder()
             .name(productRequestDto.name())
@@ -68,6 +78,14 @@ public class ProductService {
         return ProductCost.builder()
             .name(productCostRequestDto.name())
             .price(productCostRequestDto.price())
+            .build();
+    }
+
+    private static ProductDimension toModel(ProductDimensionRequestDto productDimensionRequestDto) {
+        return ProductDimension.builder()
+            .height(productDimensionRequestDto.height())
+            .width(productDimensionRequestDto.width())
+            .depth(productDimensionRequestDto.depth())
             .build();
     }
 }

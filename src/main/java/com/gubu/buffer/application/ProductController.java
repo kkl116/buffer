@@ -1,5 +1,6 @@
 package com.gubu.buffer.application;
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
+import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.application.dto.response.ProductCostResponseDto;
 import com.gubu.buffer.application.dto.response.ProductResponseDto;
@@ -21,6 +22,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    //Product level endpoints
     @GetMapping("/products")
     ResponseEntity<List<ProductResponseDto>> getProducts() {
         List<ProductResponseDto> products = productService.getAllProducts().stream()
@@ -57,6 +59,7 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    //Product cost endpoints
     @PostMapping("/product/{productId}/cost")
     ResponseEntity<ProductCostResponseDto> addProductCost(
         @PathVariable Long productId,
@@ -78,6 +81,15 @@ public class ProductController {
     @DeleteMapping("/product/cost/{costId}")
     ResponseEntity<Void> deleteProductCost(@PathVariable Long costId) {
         productService.deleteProductCost(costId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/product/{productId}/dimension")
+    ResponseEntity<Void> addProductDimension(
+        @PathVariable Long productId,
+        @RequestBody ProductDimensionRequestDto productDimensionRequestDto
+    ) {
+        productService.addProductDimension(productId, productDimensionRequestDto);
         return ResponseEntity.ok().build();
     }
 }

@@ -4,6 +4,7 @@ import com.gubu.buffer.domain.model.ProductCost;
 import com.gubu.buffer.domain.product.ProductCostRepositoryAdapter;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductCostRepository;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class ProductCostJpaRepositoryAdapter implements ProductCostRepositoryAda
     }
 
     @Override
+    @Transactional
     public ProductCost save(Long productId, ProductCost productCost) {
         var productEntity = productRepository.findById(productId)
             .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", productId)));

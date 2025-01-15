@@ -34,6 +34,7 @@ class ProductJpaRepositoryAdapterTest {
         var productEntities = productJpaRepository.findAll();
 
         //Then
+        verify(productRepository, times(1)).findAll();
         assertEquals(2, productEntities.size());
         assertEquals("product 1", productEntities.getFirst().getName());
         assertEquals("product 2", productEntities.get(1).getName());
@@ -42,11 +43,10 @@ class ProductJpaRepositoryAdapterTest {
     @Test
     void save() {
         //given
-        when(productRepository.save(any(ProductEntity.class)))
-            .thenReturn(productEntity1());
+        when(productRepository.save(any(ProductEntity.class))).thenReturn(productEntity1());
 
         //When
-        productJpaRepository.save(product1());
+        productJpaRepository.save(product());
 
         //Then
         verify(productRepository, times(1)).save(any(ProductEntity.class));
@@ -90,7 +90,7 @@ class ProductJpaRepositoryAdapterTest {
         var captor = ArgumentCaptor.forClass(ProductEntity.class);
 
         //When
-        productJpaRepository.updateProduct(1L, product2());
+        productJpaRepository.updateProduct(1L, productFromRequestDto());
 
         //Then
         verify(productRepository, times(1)).save(captor.capture());

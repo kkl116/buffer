@@ -2,33 +2,33 @@ package com.gubu.buffer.common;
 
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
+import com.gubu.buffer.domain.model.ProductDimension;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductCostEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Common {
 
     private Common() {}
 
     //Domain
-    public static Product product1() {
+    public static Product product() {
         return Product.builder()
             .id(1L)
             .name("product 1")
-            .productCosts(new ArrayList<>())
+            .costs(new ArrayList<>())
             .build();
     }
 
-    public static Product product2() {
+    public static Product productFromRequestDto() {
         return Product.builder()
             .id(2L)
             .name("product 2")
             .build();
     }
 
-    public static ProductCost productCost1() {
+    public static ProductCost productCost() {
         return ProductCost.builder()
             .id(1L)
             .name("product cost 1")
@@ -36,7 +36,7 @@ public class Common {
             .build();
     }
 
-    public static ProductCost productCostFromRequest() {
+    public static ProductCost productCostFromRequestDto() {
         return ProductCost.builder()
             .id(1L)
             .name("new cost")
@@ -67,6 +67,14 @@ public class Common {
             .name("product cost 1")
             .price(100.0)
             .product(productEntity1())
+            .build();
+    }
+
+    public static ProductDimension productDimensionFromRequestDto() {
+        return ProductDimension.builder()
+            .height(1.00)
+            .width(null)
+            .depth(null)
             .build();
     }
 }

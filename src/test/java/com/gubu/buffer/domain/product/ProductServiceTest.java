@@ -1,9 +1,11 @@
 package com.gubu.buffer.domain.product;
 
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
+import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
+import com.gubu.buffer.domain.model.ProductDimension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,13 +17,19 @@ class ProductServiceTest {
 
     private static ProductRepositoryAdapter productRepositoryAdapter;
     private static ProductCostRepositoryAdapter productCostRepositoryAdapter;
+    private static ProductDimensionRepositoryAdapter productDimensionRepositoryAdapter;
     private ProductService productService;
 
     @BeforeEach
     void setup() {
         productRepositoryAdapter = Mockito.mock(ProductRepositoryAdapter.class);
         productCostRepositoryAdapter = Mockito.mock(ProductCostRepositoryAdapter.class);
-        productService = new ProductService(productRepositoryAdapter, productCostRepositoryAdapter);
+        productDimensionRepositoryAdapter = Mockito.mock(ProductDimensionRepositoryAdapter.class);
+        productService = new ProductService(
+            productRepositoryAdapter,
+            productCostRepositoryAdapter,
+            productDimensionRepositoryAdapter
+        );
     }
 
     @Test
@@ -98,5 +106,18 @@ class ProductServiceTest {
 
         //Then
         verify(productCostRepositoryAdapter, times(1)).deleteById(any(Long.class));
+    }
+
+    @Test
+    void shouldAddProductDimension() {
+        //Given
+        var productDimensionRequestDto = new ProductDimensionRequestDto(5.00, 10.0, 10.0);
+
+        //When
+        productService.addProductDimension(1L, productDimensionRequestDto);
+
+        //Then
+        verify(productDimensionRepositoryAdapter, times(1))
+            .save(any(Long.class), any(ProductDimension.class));
     }
 }
