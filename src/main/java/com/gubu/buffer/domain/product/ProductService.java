@@ -64,8 +64,11 @@ public class ProductService {
     }
 
     //Product dimension methods
-    public void addProductDimension(Long productId, ProductDimensionRequestDto productDimensionRequestDto) {
-        this.productDimensionRepositoryAdapter.save(productId, toModel(productDimensionRequestDto));
+    public void updateProductDimension(
+        Long productId,
+        ProductDimensionRequestDto productDimensionRequestDto
+    ) {
+       this.productDimensionRepositoryAdapter.update(productId, toModel(productDimensionRequestDto));
     }
 
     private static Product toModel(ProductRequestDto productRequestDto) {

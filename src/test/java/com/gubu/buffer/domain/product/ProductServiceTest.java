@@ -109,15 +109,15 @@ class ProductServiceTest {
     }
 
     @Test
-    void shouldAddProductDimension() {
+    void shouldUpdateProductDimesnion() {
         //Given
-        var productDimensionRequestDto = new ProductDimensionRequestDto(5.00, 10.0, 10.0);
+        var productDimensionRequestDto = new ProductDimensionRequestDto(0.00, null, null);
 
         //When
-        productService.addProductDimension(1L, productDimensionRequestDto);
+        productService.updateProductDimension(1L, productDimensionRequestDto);
 
         //Then
         verify(productDimensionRepositoryAdapter, times(1))
-            .save(any(Long.class), any(ProductDimension.class));
+            .update(anyLong(), any(ProductDimension.class));
     }
 }

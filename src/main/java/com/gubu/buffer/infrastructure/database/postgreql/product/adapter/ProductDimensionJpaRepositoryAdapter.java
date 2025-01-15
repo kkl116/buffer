@@ -31,8 +31,32 @@ public class ProductDimensionJpaRepositoryAdapter implements ProductDimensionRep
 
         var productDimensionEntity = toEntity(productDimension);
 
+        //should check if productEntity already has a product dimension
+        if (productEntity.getProductDimension() != null ) {
+            throw new RuntimeException("Product already has a product dimension");
+        }
         productEntity.setProductDimension(productDimensionEntity);
         productDimensionEntity.setProduct(productEntity);
+
+        productDimensionRepository.save(productDimensionEntity);
+    }
+
+    @Override
+    public void update(Long productId, ProductDimension productDimension) {
+        var productDimensionEntity = productDimensionRepository.findById(productId)
+            .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", productId)));
+
+        if (productDimension.getHeight() != null) {
+            productDimensionEntity.setHeight(productDimension.getHeight());
+        }
+
+        if(productDimension.getDepth() != null) {
+            productDimensionEntity.setDepth(productDimension.getDepth());
+        }
+
+        if(productDimension.getWidth() != null) {
+            productDimensionEntity.setWidth(productDimension.getWidth());
+        }
 
         productDimensionRepository.save(productDimensionEntity);
     }

@@ -2,8 +2,8 @@ package gubu.buffer.postgres;
 
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
 import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
+import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.product.ProductService;
-import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
 import gubu.buffer.AbstractIntegrationTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,42 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private ProductService productService;
+
+    @Test
+    void shouldAddProductSuccessfully() {
+        //Given
+        var productRequestDto = new ProductRequestDto(PRODUCT_NAME);
+        //When
+        var returnedProduct = productService.addProduct(productRequestDto);
+
+        //Then
+        var fetchedProduct = productRepository.findById(returnedProduct.getId());
+        assertEquals(PRODUCT_NAME, fetchedProduct.get().getName());
+        assertNotNull(fetchedProduct.get().getProductDimension());
+
+        var fetchedProductDimension = productDimensionRepository.findById(returnedProduct.getId());
+        assertTrue(fetchedProductDimension.isPresent());
+    }
+
+    @Test
+    void shouldDeleteProductSuccessfully() {
+        //Given
+        var productId = persistProduct();
+        var productCostId = persistProductCost(productId);
+
+        //When
+        productService.deleteProduct(productId);
+
+        //Then
+        var fetchedProduct = productRepository.findById(productId);
+        assertTrue(fetchedProduct.isEmpty());
+
+        var fetchedProductCost = productCostRepository.findById(productCostId);
+        assertTrue(fetchedProductCost.isEmpty());
+
+        var fetchedProductDimension = productDimensionRepository.findById(productId);
+        assertTrue(fetchedProductDimension.isEmpty());
+    }
 
     @Test
     void shouldAddProductCostSuccessfully() {
@@ -66,52 +102,51 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     void shouldDeleteProductCostSuccessfully() {
         //Given
         var productId = persistProduct();
-        persistProductCost(productId);
+        var productCostId = persistProductCost(productId);
 
         //When
-        productService.deleteProductCost(1L);
+        productService.deleteProductCost(productCostId);
 
         //Then
-        var fetchedProductCost = productCostRepository.findById(1L);
+        var fetchedProductCost = productCostRepository.findById(productCostId);
         assertTrue(fetchedProductCost.isEmpty());
 
-        var fetchedProduct = productRepository.findById(1L);
+        var fetchedProduct = productRepository.findById(productId);
         assertEquals(0, fetchedProduct.get().getProductCosts().size());
     }
 
     @Test
-    void shouldAddProductDimensionSuccessfully() {
+    void shouldUpdateProductDimensionSuccessfully() {
         //Given
         var productId = persistProduct();
         var productDimensionRequestDto = new ProductDimensionRequestDto(1.00, null, null);
         //When
-        productService.addProductDimension(productId, productDimensionRequestDto);
+        productService.updateProductDimension(productId, productDimensionRequestDto);
 
         //Then
         var fetchedProduct = productRepository.findById(productId);
-        var productDimension = fetchedProduct.get().getProductDimension();
-        assertEquals(1.00, productDimension.getHeight());
-        assertNull(productDimension.getDepth());
-        assertNull(productDimension.getWidth());
+        assertEquals(1.00, fetchedProduct.get().getProductDimension().getHeight());
+        assertEquals(0.00, fetchedProduct.get().getProductDimension().getWidth());
+        assertEquals(0.00, fetchedProduct.get().getProductDimension().getDepth());
 
-        var fetchedProductDimension = productDimensionRepository.findById(productDimension.getId());
-        assertEquals(productId, fetchedProductDimension.get().getProduct().getId());
+        var fetechedProductDimension = productDimensionRepository.findById(productId);
+        assertEquals(1.00, fetechedProductDimension.get().getHeight());
+        assertEquals(0.00, fetechedProductDimension.get().getWidth());
+        assertEquals(0.00, fetechedProductDimension.get().getDepth());
     }
 
-    private Long persistProduct() {
-        var product = ProductEntity.builder()
-            .name(PRODUCT_NAME)
-            .build();
 
-        productRepository.save(product);
+    private Long persistProduct() {
+        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME);
+        var product = productService.addProduct(savedProductRequestDto);
 
         return product.getId();
     }
 
     private Long persistProductCost(Long productId) {
         var savedProductCostRequestDto = new ProductCostRequestDto(PRODUCT_COST_NAME, PRODUCT_COST_PRICE);
-        var productCostEntity = productService.addProductCost(productId, savedProductCostRequestDto);
+        var productCost = productService.addProductCost(productId, savedProductCostRequestDto);
 
-        return productCostEntity.getId();
+        return productCost.getId();
     }
 }

@@ -2,6 +2,8 @@ package com.gubu.buffer.infrastructure.database.postgreql.product.adapter;
 
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.product.ProductRepositoryAdapter;
+import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductDimensionRepository;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductRepository;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +17,14 @@ import static com.gubu.buffer.infrastructure.database.postgreql.product.adapter.
 public class ProductJpaRepositoryAdapter implements ProductRepositoryAdapter {
 
     private final ProductRepository productRepository;
+    private final ProductDimensionRepository productDimensionRepository;
 
-    public ProductJpaRepositoryAdapter(ProductRepository productRepository) {
+    public ProductJpaRepositoryAdapter(
+        ProductRepository productRepository,
+        ProductDimensionRepository productDimensionRepository
+    ) {
         this.productRepository = productRepository;
+        this.productDimensionRepository = productDimensionRepository;
     }
 
     @Override
@@ -28,6 +35,17 @@ public class ProductJpaRepositoryAdapter implements ProductRepositoryAdapter {
     @Override
     public Product save(Product product) {
         var productEntity = this.productRepository.save(toEntity(product));
+        //Also initialise product dimension for the product here
+        var productDimensionEntity = ProductDimensionEntity.builder()
+            .height(0.0)
+            .width(0.0)
+            .depth(0.0)
+            .build();
+
+        productEntity.setProductDimension(productDimensionEntity);
+        productDimensionEntity.setProduct(productEntity);
+        this.productDimensionRepository.save(productDimensionEntity);
+
         return toModel(productEntity);
     }
 

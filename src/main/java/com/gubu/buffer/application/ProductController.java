@@ -84,12 +84,12 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/product/{productId}/dimension")
-    ResponseEntity<Void> addProductDimension(
+    @PatchMapping("/product/{productId}/dimension")
+    ResponseEntity<Void> updateProductDimension(
         @PathVariable Long productId,
         @RequestBody ProductDimensionRequestDto productDimensionRequestDto
     ) {
-        productService.addProductDimension(productId, productDimensionRequestDto);
+        productService.updateProductDimension(productId, productDimensionRequestDto);
         return ResponseEntity.ok().build();
     }
 }

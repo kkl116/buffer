@@ -1,6 +1,8 @@
 package com.gubu.buffer.infrastructure.database.postgreql.product.adapter;
 
+import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductDimensionRepository;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,12 +19,14 @@ import static org.mockito.Mockito.*;
 class ProductJpaRepositoryAdapterTest {
 
     private static ProductRepository productRepository;
+    private static ProductDimensionRepository productDimensionRepository;
     private ProductJpaRepositoryAdapter productJpaRepository;
 
     @BeforeEach
     void setup() {
         productRepository = Mockito.mock(ProductRepository.class);
-        productJpaRepository = new ProductJpaRepositoryAdapter(productRepository);
+        productDimensionRepository = Mockito.mock(ProductDimensionRepository.class);
+        productJpaRepository = new ProductJpaRepositoryAdapter(productRepository, productDimensionRepository);
     }
 
     @Test
@@ -50,6 +54,7 @@ class ProductJpaRepositoryAdapterTest {
 
         //Then
         verify(productRepository, times(1)).save(any(ProductEntity.class));
+        verify(productDimensionRepository, times(1)).save(any(ProductDimensionEntity.class));
     }
 
     @Test
