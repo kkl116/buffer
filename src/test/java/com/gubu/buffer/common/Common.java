@@ -2,9 +2,9 @@ package com.gubu.buffer.common;
 
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
-import com.gubu.buffer.domain.model.ProductDimension;
+import com.gubu.buffer.domain.model.ProductDimensions;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductCostEntity;
-import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionsEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
 
 import java.util.ArrayList;
@@ -50,7 +50,8 @@ public class Common {
         return ProductEntity.builder()
             .id(1L)
             .name("product 1")
-            .productCosts(new ArrayList<>())
+            .costs(new ArrayList<>())
+            .dimensions(new ProductDimensionsEntity(1L, 1.00, 1.00, 1.00, new ProductEntity()))
             .build();
     }
 
@@ -58,8 +59,16 @@ public class Common {
         return ProductEntity.builder()
             .id(2L)
             .name("product 2")
-            .productCosts(new ArrayList<>())
-            .productDimension(new ProductDimensionEntity())
+            .costs(new ArrayList<>())
+            .dimensions(new ProductDimensionsEntity(2L, 1.00, 1.00, 1.00, new ProductEntity()))
+            .build();
+    }
+
+    public static ProductEntity productEntityFromRequestDto() {
+        return ProductEntity.builder()
+            .id(1L)
+            .name("product 1")
+            .costs(new ArrayList<>())
             .build();
     }
 
@@ -72,8 +81,8 @@ public class Common {
             .build();
     }
 
-    public static ProductDimensionEntity productDimensionEntity1() {
-        return ProductDimensionEntity.builder()
+    public static ProductDimensionsEntity productDimensionEntity1() {
+        return ProductDimensionsEntity.builder()
             .id(1L)
             .height(0.0)
             .width(0.0)
@@ -81,8 +90,8 @@ public class Common {
             .build();
     }
 
-    public static ProductDimension productDimensionFromRequestDto() {
-        return ProductDimension.builder()
+    public static ProductDimensions productDimensionFromRequestDto() {
+        return ProductDimensions.builder()
             .height(1.00)
             .width(null)
             .depth(null)

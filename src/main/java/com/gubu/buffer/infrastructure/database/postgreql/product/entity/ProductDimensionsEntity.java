@@ -12,9 +12,9 @@ import java.util.Objects;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ProductDimensionEntity {
+public class ProductDimensionsEntity {
 
-    public ProductDimensionEntity() { /*For JPA */ }
+    public ProductDimensionsEntity() { /*For JPA */ }
 
     @Id
     @Column(name = "product_id")
@@ -48,7 +48,7 @@ public class ProductDimensionEntity {
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
         }
-        ProductDimensionEntity that = (ProductDimensionEntity) o;
+        ProductDimensionsEntity that = (ProductDimensionsEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

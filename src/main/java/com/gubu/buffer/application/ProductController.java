@@ -6,6 +6,7 @@ import com.gubu.buffer.application.dto.response.ProductCostResponseDto;
 import com.gubu.buffer.application.dto.response.ProductResponseDto;
 import com.gubu.buffer.domain.model.ProductCost;
 import com.gubu.buffer.domain.product.ProductService;
+import org.apache.logging.log4j.message.ReusableMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +34,12 @@ public class ProductController {
     }
 
     @GetMapping("/product/{productId}")
-    ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
-        return productService.getProductById(productId)
+    ResponseEntity<ProductResponseDto> getProduct(
+        @PathVariable Long productId,
+        @RequestParam(value = "fields", required = false) String fields
+    ) {
+        //TODO: return cost and dimension info when requested for loading product details page
+        return productService.getProductById(productId, List.of(fields.split(",")))
             .map(ResponseMapper::toResponse)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());

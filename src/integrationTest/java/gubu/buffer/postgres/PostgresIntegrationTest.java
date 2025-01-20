@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
@@ -22,6 +24,41 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     private ProductService productService;
 
     @Test
+    void shouldGetProductSuccessfully() {
+        //Given
+        var productId = persistProduct();
+        persistProductCost(productId);
+        persistProductCost(productId);
+
+        //When
+        var fetchedProduct = productService.getProductById(productId, List.of()).get();
+
+        //Then
+        assertEquals(productId, fetchedProduct.getId());
+        assertEquals(PRODUCT_NAME, fetchedProduct.getName());
+        assertNotNull(fetchedProduct.getDimensions());
+        assertNotNull(fetchedProduct.getCosts());
+    }
+
+    @Test
+    void shouldGetProductWithFieldsSuccessfully() {
+        //Given
+        var productId = persistProduct();
+        persistProductCost(productId);
+        persistProductCost(productId);
+
+        //When
+        var fields = List.of("id", "name");
+        var fetchedProduct = productService.getProductById(productId, fields).get();
+
+        //Then
+        assertEquals(productId, fetchedProduct.getId());
+        assertEquals(PRODUCT_NAME, fetchedProduct.getName());
+        assertNotNull(fetchedProduct.getDimensions());
+        assertNotNull(fetchedProduct.getCosts());
+    }
+
+    @Test
     void shouldAddProductSuccessfully() {
         //Given
         var productRequestDto = new ProductRequestDto(PRODUCT_NAME);
@@ -31,7 +68,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         //Then
         var fetchedProduct = productRepository.findById(returnedProduct.getId());
         assertEquals(PRODUCT_NAME, fetchedProduct.get().getName());
-        assertNotNull(fetchedProduct.get().getProductDimension());
+        assertNotNull(fetchedProduct.get().getDimensions());
 
         var fetchedProductDimension = productDimensionRepository.findById(returnedProduct.getId());
         assertTrue(fetchedProductDimension.isPresent());
@@ -67,7 +104,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
         //Then
         var fetchedProduct = productRepository.findById(productId);
-        var productCost = fetchedProduct.get().getProductCosts().getFirst();
+        var productCost = fetchedProduct.get().getCosts().getFirst();
         assertEquals("paper", productCost.getName());
         assertEquals(20.00, productCost.getPrice());
 
@@ -94,8 +131,8 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertEquals(20.00, fetchedProductCost.get().getPrice());
 
         var fetchedProduct = productRepository.findById(productId);
-        assertEquals("new-paper", fetchedProduct.get().getProductCosts().getFirst().getName());
-        assertEquals(20.00, fetchedProduct.get().getProductCosts().getFirst().getPrice());
+        assertEquals("new-paper", fetchedProduct.get().getCosts().getFirst().getName());
+        assertEquals(20.00, fetchedProduct.get().getCosts().getFirst().getPrice());
     }
 
     @Test
@@ -112,7 +149,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertTrue(fetchedProductCost.isEmpty());
 
         var fetchedProduct = productRepository.findById(productId);
-        assertEquals(0, fetchedProduct.get().getProductCosts().size());
+        assertEquals(0, fetchedProduct.get().getCosts().size());
     }
 
     @Test
@@ -125,9 +162,9 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
         //Then
         var fetchedProduct = productRepository.findById(productId);
-        assertEquals(1.00, fetchedProduct.get().getProductDimension().getHeight());
-        assertEquals(0.00, fetchedProduct.get().getProductDimension().getWidth());
-        assertEquals(0.00, fetchedProduct.get().getProductDimension().getDepth());
+        assertEquals(1.00, fetchedProduct.get().getDimensions().getHeight());
+        assertEquals(0.00, fetchedProduct.get().getDimensions().getWidth());
+        assertEquals(0.00, fetchedProduct.get().getDimensions().getDepth());
 
         var fetechedProductDimension = productDimensionRepository.findById(productId);
         assertEquals(1.00, fetechedProductDimension.get().getHeight());

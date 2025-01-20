@@ -14,17 +14,17 @@ import static com.gubu.buffer.common.Common.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class ProductCostJpaRepositoryAdapterTest {
+class ProductCostRepositoryAdapterImplTest {
 
     private ProductRepository productRepository;
     private ProductCostRepository productCostRepository;
-    private ProductCostJpaRepositoryAdapter productCostJpaRepository;
+    private ProductCostRepositoryAdapterImpl productCostJpaRepository;
 
     @BeforeEach
     void setup() {
         productRepository = Mockito.mock(ProductRepository.class);
         productCostRepository = Mockito.mock(ProductCostRepository.class);
-        productCostJpaRepository = new ProductCostJpaRepositoryAdapter(productRepository, productCostRepository);
+        productCostJpaRepository = new ProductCostRepositoryAdapterImpl(productRepository, productCostRepository);
     }
 
     @Test

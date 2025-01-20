@@ -1,6 +1,6 @@
 package com.gubu.buffer.infrastructure.database.postgreql.product.adapter;
 
-import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionsEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductDimensionRepository;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductRepository;
@@ -16,17 +16,17 @@ import static com.gubu.buffer.common.Common.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class ProductJpaRepositoryAdapterTest {
+class ProductRepositoryAdapterImplTest {
 
     private static ProductRepository productRepository;
     private static ProductDimensionRepository productDimensionRepository;
-    private ProductJpaRepositoryAdapter productJpaRepository;
+    private ProductRepositoryAdapterImpl productJpaRepository;
 
     @BeforeEach
     void setup() {
         productRepository = Mockito.mock(ProductRepository.class);
         productDimensionRepository = Mockito.mock(ProductDimensionRepository.class);
-        productJpaRepository = new ProductJpaRepositoryAdapter(productRepository, productDimensionRepository);
+        productJpaRepository = new ProductRepositoryAdapterImpl(productRepository, productDimensionRepository);
     }
 
     @Test
@@ -54,7 +54,7 @@ class ProductJpaRepositoryAdapterTest {
 
         //Then
         verify(productRepository, times(1)).save(any(ProductEntity.class));
-        verify(productDimensionRepository, times(1)).save(any(ProductDimensionEntity.class));
+        verify(productDimensionRepository, times(1)).save(any(ProductDimensionsEntity.class));
     }
 
     @Test
@@ -72,7 +72,7 @@ class ProductJpaRepositoryAdapterTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1()));
 
         //When
-        productJpaRepository.findById(1L);
+        productJpaRepository.findById(1L, List.of());
 
         //Then
         verify(productRepository, times(1)).findById(1L);

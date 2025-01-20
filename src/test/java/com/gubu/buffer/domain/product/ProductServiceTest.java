@@ -5,10 +5,12 @@ import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
-import com.gubu.buffer.domain.model.ProductDimension;
+import com.gubu.buffer.domain.model.ProductDimensions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -61,10 +63,10 @@ class ProductServiceTest {
     @Test
     void shouldGetProductById() {
         //When
-        productService.getProductById(1L);
+        productService.getProductById(1L, List.of());
 
         //Then
-        verify(productRepositoryAdapter, times(1)).findById(1L);
+        verify(productRepositoryAdapter, times(1)).findById(1L, List.of());
     }
 
     @Test
@@ -118,6 +120,6 @@ class ProductServiceTest {
 
         //Then
         verify(productDimensionRepositoryAdapter, times(1))
-            .update(anyLong(), any(ProductDimension.class));
+            .update(anyLong(), any(ProductDimensions.class));
     }
 }

@@ -13,12 +13,12 @@ import static com.gubu.buffer.infrastructure.database.postgreql.product.adapter.
 import static com.gubu.buffer.infrastructure.database.postgreql.product.adapter.EntityModelMapper.toModel;
 
 @Component
-public class ProductCostJpaRepositoryAdapter implements ProductCostRepositoryAdapter {
+public class ProductCostRepositoryAdapterImpl implements ProductCostRepositoryAdapter {
 
     private final ProductRepository productRepository;
     private final ProductCostRepository productCostRepository;
 
-    public ProductCostJpaRepositoryAdapter(
+    public ProductCostRepositoryAdapterImpl(
         ProductRepository productRepository,
         ProductCostRepository productCostRepository
     ) {
@@ -40,7 +40,7 @@ public class ProductCostJpaRepositoryAdapter implements ProductCostRepositoryAda
         var productCostEntity = toEntity(productCost);
 
         //ensure both sides of relation is updated
-        productEntity.getProductCosts().add(productCostEntity);
+        productEntity.getCosts().add(productCostEntity);
         productCostEntity.setProduct(productEntity);
 
         //Should persist the owning side of the relationship - the one that has the FK
@@ -76,7 +76,7 @@ public class ProductCostJpaRepositoryAdapter implements ProductCostRepositoryAda
 
         var productEntity = productCost.getProduct();
 
-        productEntity.getProductCosts().remove(productCost);
+        productEntity.getCosts().remove(productCost);
         this.productCostRepository.deleteById(costId);
     }
 }

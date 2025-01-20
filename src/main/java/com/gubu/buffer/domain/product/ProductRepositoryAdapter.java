@@ -12,7 +12,7 @@ public interface ProductRepositoryAdapter {
 
     void deleteById(Long productId);
 
-    Optional<Product> findById(Long productId);
+    Optional<Product> findById(Long productId, List<String> fields);
 
     void deleteAll();
 

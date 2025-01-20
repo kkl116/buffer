@@ -1,6 +1,6 @@
 package com.gubu.buffer.infrastructure.database.postgreql.product.adapter;
 
-import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionEntity;
+import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionsEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductDimensionRepository;
 import com.gubu.buffer.infrastructure.database.postgreql.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,17 +16,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class ProductDimensionJpaRepositoryAdapterTest {
+class ProductDimensionsRepositoryAdapterImplTest {
 
     private ProductRepository productRepository;
     private ProductDimensionRepository productDimensionRepository;
-    private ProductDimensionJpaRepositoryAdapter productDimensionJpaRepository;
+    private ProductDimensionRepositoryAdapterImpl productDimensionJpaRepository;
 
     @BeforeEach
     void setUp() {
         productRepository = Mockito.mock(ProductRepository.class);
         productDimensionRepository = Mockito.mock(ProductDimensionRepository.class);
-        productDimensionJpaRepository = new ProductDimensionJpaRepositoryAdapter(
+        productDimensionJpaRepository = new ProductDimensionRepositoryAdapterImpl(
             productRepository,
             productDimensionRepository
         );
@@ -35,14 +35,14 @@ class ProductDimensionJpaRepositoryAdapterTest {
     @Test
     void save() {
         //Given
-        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1()));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntityFromRequestDto()));
 
         //When
         productDimensionJpaRepository.save(1L, productDimensionFromRequestDto());
 
         //Then
         verify(productRepository, times(1)).findById(1L);
-        verify(productDimensionRepository, times(1)).save(any(ProductDimensionEntity.class));
+        verify(productDimensionRepository, times(1)).save(any(ProductDimensionsEntity.class));
     }
 
     @Test
@@ -62,7 +62,7 @@ class ProductDimensionJpaRepositoryAdapterTest {
         //Given
         when(productDimensionRepository.findById(1L)).thenReturn(Optional.of(productDimensionEntity1()));
 
-        var captor = ArgumentCaptor.forClass(ProductDimensionEntity.class);
+        var captor = ArgumentCaptor.forClass(ProductDimensionsEntity.class);
 
         //When
         productDimensionJpaRepository.update(1L, productDimensionFromRequestDto());

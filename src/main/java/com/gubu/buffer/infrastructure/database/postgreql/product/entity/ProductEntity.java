@@ -36,7 +36,7 @@ public class ProductEntity {
         orphanRemoval = true,
         cascade = CascadeType.ALL
     )
-    private List<ProductCostEntity> productCosts = new ArrayList<>();
+    private List<ProductCostEntity> costs = new ArrayList<>();
 
     @OneToOne(
         mappedBy = "product",
@@ -44,7 +44,7 @@ public class ProductEntity {
         cascade = CascadeType.ALL
     )
     @PrimaryKeyJoinColumn
-    private ProductDimensionEntity productDimension;
+    private ProductDimensionsEntity dimensions;
 
     @Override
     public final boolean equals(Object o) {

@@ -5,7 +5,7 @@ import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
-import com.gubu.buffer.domain.model.ProductDimension;
+import com.gubu.buffer.domain.model.ProductDimensions;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,8 +46,8 @@ public class ProductService {
         return this.productRepositoryAdapter.findAll();
     }
 
-    public Optional<Product> getProductById(Long productId) {
-        return this.productRepositoryAdapter.findById(productId);
+    public Optional<Product> getProductById(Long productId, List<String> fields) {
+        return this.productRepositoryAdapter.findById(productId, fields);
     }
 
     //Product cost methods
@@ -84,8 +84,8 @@ public class ProductService {
             .build();
     }
 
-    private static ProductDimension toModel(ProductDimensionRequestDto productDimensionRequestDto) {
-        return ProductDimension.builder()
+    private static ProductDimensions toModel(ProductDimensionRequestDto productDimensionRequestDto) {
+        return ProductDimensions.builder()
             .height(productDimensionRequestDto.height())
             .width(productDimensionRequestDto.width())
             .depth(productDimensionRequestDto.depth())

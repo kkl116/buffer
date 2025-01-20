@@ -8,10 +8,10 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 public class Product {
     private Long id;
     private String name;
     private List<ProductCost> costs;
-    private ProductDimension dimension;
+    private ProductDimensions dimensions;
 }
