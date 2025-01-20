@@ -38,7 +38,6 @@ public class ProductController {
         @PathVariable Long productId,
         @RequestParam(value = "fields", required = false) String fields
     ) {
-        //TODO: return cost and dimension info when requested for loading product details page
         return productService.getProductById(productId, List.of(fields.split(",")))
             .map(ResponseMapper::toResponse)
             .map(ResponseEntity::ok)
