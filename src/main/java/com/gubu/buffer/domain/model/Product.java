@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder(toBuilder = true)
+@Builder
 public class Product {
     private Long id;
     private String name;

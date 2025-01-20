@@ -7,16 +7,29 @@ import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
 import com.gubu.buffer.domain.model.ProductDimensions;
 
+import java.util.List;
+import java.util.Optional;
+
 public class ResponseMapper {
 
     private ResponseMapper() {}
 
     public static ProductResponseDto toResponse(Product product) {
+
+        //fields can be nullable depending on which were requested, so just provide defaults
+        List<ProductCostResponseDto> costDtos = Optional.ofNullable(product.getCosts())
+            .map(costs -> costs.stream().map(ResponseMapper::toResponse).toList())
+            .orElse(null);
+
+        ProductDimensionsResponseDto dimensionsDto = Optional.ofNullable(product.getDimensions())
+            .map(ResponseMapper::toResponse)
+            .orElse(null);
+
         return ProductResponseDto.builder()
             .id(product.getId())
             .name(product.getName())
-            .costs(product.getCosts().stream().map(ResponseMapper::toResponse).toList())
-            .dimensions(ResponseMapper.toResponse(product.getDimensions()))
+            .costs(costDtos)
+            .dimensions(dimensionsDto)
             .build();
     }
 
