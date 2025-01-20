@@ -123,7 +123,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
     }
 
     @Getter
-    public enum ProductField {
+    private enum ProductField {
         ID("id"),
         NAME("name"),
         DIMENSIONS("dimensions"),
