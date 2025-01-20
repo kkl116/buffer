@@ -26,15 +26,16 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     @Test
     void shouldGetProductSuccessfully() {
         //Given
-        var productId = persistProduct();
-        persistProductCost(productId);
-        persistProductCost(productId);
+        var productId1 = persistProduct();
+        var productId2 = persistProduct();
+        persistProductCost(productId1);
+        persistProductCost(productId1);
 
         //When
-        var fetchedProduct = productService.getProductById(productId, List.of()).get();
+        var fetchedProduct = productService.getProductById(productId1, List.of()).get();
 
         //Then
-        assertEquals(productId, fetchedProduct.getId());
+        assertEquals(productId1, fetchedProduct.getId());
         assertEquals(PRODUCT_NAME, fetchedProduct.getName());
         assertNotNull(fetchedProduct.getDimensions());
         assertNotNull(fetchedProduct.getCosts());
@@ -43,16 +44,17 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     @Test
     void shouldGetProductWithFieldsSuccessfully() {
         //Given
-        var productId = persistProduct();
-        persistProductCost(productId);
-        persistProductCost(productId);
+        var productId1 = persistProduct();
+        var productId2 = persistProduct();
+        persistProductCost(productId1);
+        persistProductCost(productId1);
 
         //When
-        var fields = List.of("id", "name");
-        var fetchedProduct = productService.getProductById(productId, fields).get();
+        var fields = List.of("id", "name", "dimensions", "costs");
+        var fetchedProduct = productService.getProductById(productId1, fields).get();
 
         //Then
-        assertEquals(productId, fetchedProduct.getId());
+        assertEquals(productId1, fetchedProduct.getId());
         assertEquals(PRODUCT_NAME, fetchedProduct.getName());
         assertNotNull(fetchedProduct.getDimensions());
         assertNotNull(fetchedProduct.getCosts());

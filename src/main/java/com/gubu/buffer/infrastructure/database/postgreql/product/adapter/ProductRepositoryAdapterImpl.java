@@ -75,6 +75,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         }
 
         //perform a select query with specified fields
+        //TODO: bruh forgot to filter by Id here.... - but refactor this so getProducts can also do the same
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = criteriaBuilder.createQuery(Tuple.class);
         Root<ProductEntity> root = query.from(ProductEntity.class);
@@ -90,6 +91,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         });
 
         query.multiselect(selections);
+        query.where(criteriaBuilder.equal(root.get("id"), productId));
 
         List<Tuple> results = entityManager.createQuery(query).getResultList();
 
