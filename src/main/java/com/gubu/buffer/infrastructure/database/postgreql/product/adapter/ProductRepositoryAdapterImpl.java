@@ -10,16 +10,12 @@ import com.gubu.buffer.infrastructure.database.postgreql.product.repository.Prod
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.*;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.gubu.buffer.infrastructure.database.postgreql.product.adapter.EntityModelMapper.toEntity;
 import static com.gubu.buffer.infrastructure.database.postgreql.product.adapter.EntityModelMapper.toModel;
@@ -41,8 +37,28 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
     }
 
     @Override
-    public List<Product> findAll() {
-        return this.productRepository.findAll().stream().map(EntityModelMapper::toModel).toList();
+    public List<Product> findAll(List<String> fields) {
+        if (fields.isEmpty()) {
+            return this.productRepository.findAll().stream().map(EntityModelMapper::toModel).toList();
+        }
+
+        //perform findAll query with selected fields
+        Set<ProductField> requestedFields = fields.stream()
+            .map(ProductField::fromString)
+            .collect(Collectors.toUnmodifiableSet());
+
+        List<Tuple> results = executeFetchProductQuery(requestedFields, null);
+
+        if (results.isEmpty()) {
+            return List.of();
+        }
+
+        //deal with result list here. - probably partition results my productId, then do reduce
+        return results.stream()
+            .collect(Collectors.groupingBy(row -> row.get("id", Long.class)))
+            .values().stream()
+            .map(rows -> convertRowsToProduct(requestedFields, rows))
+            .toList();
     }
 
     @Override
@@ -75,39 +91,17 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         }
 
         //perform a select query with specified fields
-        //TODO: bruh forgot to filter by Id here.... - but refactor this so getProducts can also do the same
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> query = criteriaBuilder.createQuery(Tuple.class);
-        Root<ProductEntity> root = query.from(ProductEntity.class);
-        List<Selection<?>> selections = new ArrayList<>();
-
-        List<ProductField> productFields = fields.stream()
+        Set<ProductField> requestedFields = fields.stream()
             .map(ProductField::fromString)
-            .toList();
+            .collect(Collectors.toUnmodifiableSet());
 
-        productFields.forEach(field -> {
-            //check validity of field
-            selections.add(root.get(field.getValue()).alias(field.getValue()));
-        });
-
-        query.multiselect(selections);
-        query.where(criteriaBuilder.equal(root.get("id"), productId));
-
-        List<Tuple> results = entityManager.createQuery(query).getResultList();
+        List<Tuple> results = executeFetchProductQuery(requestedFields, productId);
 
         if (results.isEmpty()) {
             return Optional.empty();
         }
 
-        //a combiner is needed in this case because hypothetically if this changed into a parallel stream,
-        //you need something to join the values of the intermediate streams that is of the new type.
-        return Optional.of(productFields.stream()
-            .reduce(Product.builder(),
-                (builder, field) -> updateProduct(field, builder, results),
-                (builder1, builder2) -> builder2 //dummy combiner
-            )
-            .build()
-        );
+        return Optional.of(convertRowsToProduct(requestedFields, results));
     }
 
     @Override
@@ -164,5 +158,42 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
                 .toList()
             );
         };
+    }
+
+    private List<Tuple> executeFetchProductQuery(
+        Set<ProductField> requestedFields,
+        Long productId
+    ) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = criteriaBuilder.createQuery(Tuple.class);
+        Root<ProductEntity> root = query.from(ProductEntity.class);
+
+        //create intermediate set of fields for query - should include Id - for grouping later
+        Set<ProductField> queryFields = new HashSet<>();
+        queryFields.addAll(requestedFields);
+        queryFields.add(ProductField.ID);
+
+        List<Selection<?>> selections = new ArrayList<>();
+        queryFields.forEach(field -> {
+            //check validity of field
+            selections.add(root.get(field.getValue()).alias(field.getValue()));
+        });
+
+        query.multiselect(selections);
+
+        //if productId provided add a where clause
+        Optional.ofNullable(productId).ifPresent(id -> query.where(criteriaBuilder.equal(root.get("id"), id)));
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    private Product convertRowsToProduct(Set<ProductField> requestedFields, List<Tuple> rows) {
+        //a combiner is needed in this case because hypothetically if this changed into a parallel stream,
+        //you need something to join the values of the intermediate streams that is of the new type.
+        return requestedFields.stream()
+            .reduce(Product.builder(),
+                (builder, field) -> updateProduct(field, builder, rows),
+                (builder1, builder2) -> builder2 //dummy combiner
+            )
+            .build();
     }
 }

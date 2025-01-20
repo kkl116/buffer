@@ -35,7 +35,7 @@ class ProductRepositoryAdapterImplTest {
         when(productRepository.findAll()).thenReturn(List.of(productEntity1(), productEntity2()));
 
         //When
-        var productEntities = productJpaRepository.findAll();
+        var productEntities = productJpaRepository.findAll(List.of());
 
         //Then
         verify(productRepository, times(1)).findAll();

@@ -6,11 +6,11 @@ import com.gubu.buffer.application.dto.response.ProductCostResponseDto;
 import com.gubu.buffer.application.dto.response.ProductResponseDto;
 import com.gubu.buffer.domain.model.ProductCost;
 import com.gubu.buffer.domain.product.ProductService;
-import org.apache.logging.log4j.message.ReusableMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.gubu.buffer.application.ResponseMapper.toResponse;
 
@@ -25,8 +25,10 @@ public class ProductController {
 
     //Product level endpoints
     @GetMapping("/products")
-    ResponseEntity<List<ProductResponseDto>> getProducts() {
-        List<ProductResponseDto> products = productService.getAllProducts().stream()
+    ResponseEntity<List<ProductResponseDto>> getProducts(
+        @RequestParam(value = "fields", required = false) String fieldsParam
+    ) {
+        List<ProductResponseDto> products = productService.getAllProducts(parseFieldsParam(fieldsParam)).stream()
             .map(ResponseMapper::toResponse)
             .toList();
 
@@ -36,9 +38,9 @@ public class ProductController {
     @GetMapping("/product/{productId}")
     ResponseEntity<ProductResponseDto> getProduct(
         @PathVariable Long productId,
-        @RequestParam(value = "fields", required = false) String fields
+        @RequestParam(value = "fields", required = false) String fieldsParam
     ) {
-        return productService.getProductById(productId, List.of(fields.split(",")))
+        return productService.getProductById(productId, parseFieldsParam(fieldsParam))
             .map(ResponseMapper::toResponse)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
@@ -95,5 +97,11 @@ public class ProductController {
     ) {
         productService.updateProductDimension(productId, productDimensionRequestDto);
         return ResponseEntity.ok().build();
+    }
+
+    private List<String> parseFieldsParam(String fieldsParam) {
+        return Optional.ofNullable(fieldsParam)
+            .map(param -> List.of(param.split(",")))
+            .orElse(List.of());
     }
 }

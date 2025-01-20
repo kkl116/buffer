@@ -42,8 +42,8 @@ public class ProductService {
         this.productRepositoryAdapter.updateProduct(productId, toModel(productRequestDto));
     }
 
-    public List<Product> getAllProducts() {
-        return this.productRepositoryAdapter.findAll();
+    public List<Product> getAllProducts(List<String> fields) {
+        return this.productRepositoryAdapter.findAll(fields);
     }
 
     public Optional<Product> getProductById(Long productId, List<String> fields) {

@@ -54,10 +54,10 @@ class ProductServiceTest {
     @Test
     void shouldGetAllProducts() {
         //When
-        productService.getAllProducts();
+        productService.getAllProducts(List.of());
 
         //Then
-        verify(productRepositoryAdapter, times(1)).findAll();
+        verify(productRepositoryAdapter, times(1)).findAll(List.of());
     }
 
     @Test

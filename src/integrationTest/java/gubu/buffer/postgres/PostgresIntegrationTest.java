@@ -24,6 +24,43 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     private ProductService productService;
 
     @Test
+    void shouldGetAllProductsSuccessfully() {
+        //Given
+        var productId1 = persistProduct();
+        var productId2 = persistProduct();
+        persistProductCost(1L);
+        persistProductCost(1L);
+
+        //When
+        var allProducts = productService.getAllProducts(List.of());
+
+        //Then
+        assertEquals(2, allProducts.size());
+        assertEquals(productId1, allProducts.get(0).getId());
+        assertEquals(productId2, allProducts.get(1).getId());
+    }
+
+    @Test
+    void shouldGetAllProductsWithFieldsSuccessfully() {
+        //Given
+        var productId1 = persistProduct();
+        var productId2 = persistProduct();
+
+        //When
+        var fields = List.of("id", "name");
+        var allProducts = productService.getAllProducts(fields);
+
+        //Then
+        assertEquals(2, allProducts.size());
+        assertEquals(productId1, allProducts.get(0).getId());
+        assertEquals(productId2, allProducts.get(1).getId());
+        assertEquals(PRODUCT_NAME, allProducts.get(0).getName());
+        assertEquals(PRODUCT_NAME, allProducts.get(1).getName());
+        assertNull(allProducts.get(0).getDimensions());
+        assertNull(allProducts.get(1).getCosts());
+    }
+
+    @Test
     void shouldGetProductSuccessfully() {
         //Given
         var productId1 = persistProduct();
@@ -50,11 +87,10 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         persistProductCost(productId1);
 
         //When
-        var fields = List.of("id", "name", "dimensions", "costs");
+        var fields = List.of("name", "dimensions", "costs");
         var fetchedProduct = productService.getProductById(productId1, fields).get();
 
         //Then
-        assertEquals(productId1, fetchedProduct.getId());
         assertEquals(PRODUCT_NAME, fetchedProduct.getName());
         assertNotNull(fetchedProduct.getDimensions());
         assertNotNull(fetchedProduct.getCosts());
