@@ -38,6 +38,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
 
     @Override
     public List<Product> findAll(List<String> fields) {
+        //TODO: Return objects instead of exceptions!
         if (fields.isEmpty()) {
             return this.productRepository.findAll().stream().map(EntityModelMapper::toModel).toList();
         }
@@ -114,31 +115,15 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         var productEntity = this.productRepository.findById(productId)
             .orElseThrow(() -> new RuntimeException(String.format("Product id %s not found", productId)));
 
-        productEntity.setName(product.getName());
+        if (product.getName() != null) {
+            productEntity.setName(product.getName());
+        }
+
+        if (product.getDescription() != null) {
+            productEntity.setDescription(product.getDescription());
+        }
+
         this.productRepository.save(productEntity);
-    }
-
-    @Getter
-    private enum ProductField {
-        ID("id"),
-        NAME("name"),
-        DIMENSIONS("dimensions"),
-        COSTS("costs");
-
-        private final String value;
-
-        ProductField(String value) {
-            this.value = value;
-        }
-
-        public static ProductField fromString(String fieldName) {
-            for (ProductField field : values()) {
-                if (field.name().equalsIgnoreCase(fieldName)) {
-                    return field;
-                }
-            }
-            throw new IllegalArgumentException("Invalid field: " + fieldName);
-        }
     }
 
     private Product.ProductBuilder updateProduct(
@@ -149,11 +134,12 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         return switch (field) {
             case ID -> productBuilder.id(results.getFirst().get(field.getValue(), Long.class));
             case NAME -> productBuilder.name(results.getFirst().get(field.getValue(), String.class));
+            case DESCRIPTION -> productBuilder.description(results.getFirst().get(field.getValue(), String.class));
             case DIMENSIONS -> productBuilder.dimensions(
                 toModel(results.getFirst().get(field.getValue(), ProductDimensionsEntity.class))
             );
             case COSTS -> productBuilder.costs(results.stream()
-                .map(tuple -> tuple.get("costs", ProductCostEntity.class))
+                .map(tuple -> tuple.get(field.getValue(), ProductCostEntity.class))
                 .map(EntityModelMapper::toModel)
                 .toList()
             );
@@ -174,10 +160,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         queryFields.add(ProductField.ID);
 
         List<Selection<?>> selections = new ArrayList<>();
-        queryFields.forEach(field -> {
-            //check validity of field
-            selections.add(root.get(field.getValue()).alias(field.getValue()));
-        });
+        queryFields.forEach(field -> selections.add(root.get(field.getValue()).alias(field.getValue())));
 
         query.multiselect(selections);
 
@@ -195,5 +178,29 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
                 (builder1, builder2) -> builder2 //dummy combiner
             )
             .build();
+    }
+
+    @Getter
+    private enum ProductField {
+        ID("id"),
+        NAME("name"),
+        DESCRIPTION("description"),
+        DIMENSIONS("dimensions"),
+        COSTS("costs");
+
+        private final String value;
+
+        ProductField(String value) {
+            this.value = value;
+        }
+
+        public static ProductField fromString(String fieldName) {
+            for (ProductField field : values()) {
+                if (field.name().equalsIgnoreCase(fieldName)) {
+                    return field;
+                }
+            }
+            throw new IllegalArgumentException("Invalid field: " + fieldName);
+        }
     }
 }

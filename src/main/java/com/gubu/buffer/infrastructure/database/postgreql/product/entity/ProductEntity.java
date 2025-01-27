@@ -29,6 +29,10 @@ public class ProductEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Setter
+    @Column
+    private String description;
+
     @Builder.Default
     @OneToMany(
         fetch = FetchType.LAZY,

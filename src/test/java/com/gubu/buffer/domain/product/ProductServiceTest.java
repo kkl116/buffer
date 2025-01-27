@@ -37,7 +37,7 @@ class ProductServiceTest {
     @Test
     void shouldAddProduct() {
         //When
-        productService.addProduct(new ProductRequestDto("dummy"));
+        productService.addProduct(new ProductRequestDto("dummy", null));
         //Then
         verify(productRepositoryAdapter, times(1)).save(any(Product.class));
     }
@@ -72,7 +72,7 @@ class ProductServiceTest {
     @Test
     void shouldUpdateProduct() {
         //When
-        var productRequestDto = new ProductRequestDto("dummy");
+        var productRequestDto = new ProductRequestDto(null, "Description 2");
         productService.updateProduct(1L, productRequestDto);
 
         //Then

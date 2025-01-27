@@ -28,6 +28,7 @@ public class ResponseMapper {
         return ProductResponseDto.builder()
             .id(product.getId())
             .name(product.getName())
+            .description(product.getDescription())
             .costs(costDtos)
             .dimensions(dimensionsDto)
             .build();

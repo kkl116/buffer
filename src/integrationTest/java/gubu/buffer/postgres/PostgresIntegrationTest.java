@@ -19,6 +19,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     private static final String PRODUCT_NAME = "Product 1";
     private static final String PRODUCT_COST_NAME = "paper";
     private static final Double PRODUCT_COST_PRICE = 10.00;
+    private static final String PRODUCT_DESCRIPTION = "Product Description";
 
     @Autowired
     private ProductService productService;
@@ -47,7 +48,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         var productId2 = persistProduct();
 
         //When
-        var fields = List.of("id", "name");
+        var fields = List.of("id", "name", "description");
         var allProducts = productService.getAllProducts(fields);
 
         //Then
@@ -58,6 +59,8 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertEquals(PRODUCT_NAME, allProducts.get(1).getName());
         assertNull(allProducts.get(0).getDimensions());
         assertNull(allProducts.get(1).getCosts());
+        assertEquals(PRODUCT_DESCRIPTION, allProducts.get(0).getDescription());
+        assertEquals(PRODUCT_DESCRIPTION, allProducts.get(1).getDescription());
     }
 
     @Test
@@ -76,6 +79,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertEquals(PRODUCT_NAME, fetchedProduct.getName());
         assertNotNull(fetchedProduct.getDimensions());
         assertNotNull(fetchedProduct.getCosts());
+        assertNotNull(fetchedProduct.getDescription());
     }
 
     @Test
@@ -99,7 +103,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
     @Test
     void shouldAddProductSuccessfully() {
         //Given
-        var productRequestDto = new ProductRequestDto(PRODUCT_NAME);
+        var productRequestDto = new ProductRequestDto(PRODUCT_NAME, null);
         //When
         var returnedProduct = productService.addProduct(productRequestDto);
 
@@ -212,7 +216,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
 
     private Long persistProduct() {
-        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME);
+        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME, PRODUCT_DESCRIPTION);
         var product = productService.addProduct(savedProductRequestDto);
 
         return product.getId();

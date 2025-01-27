@@ -8,8 +8,9 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProductResponseDto(
-    String name,
     Long id,
+    String name,
+    String description,
     List<ProductCostResponseDto> costs,
     ProductDimensionsResponseDto dimensions
 ) {}

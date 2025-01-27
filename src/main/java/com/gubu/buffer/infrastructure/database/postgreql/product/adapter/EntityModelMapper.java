@@ -15,6 +15,7 @@ public class EntityModelMapper {
         //should only update things that come in from request dto
         return ProductEntity.builder()
             .name(product.getName())
+            .description(product.getDescription())
             .build();
     }
 
@@ -38,6 +39,7 @@ public class EntityModelMapper {
         return Product.builder()
             .id(productEntity.getId())
             .name(productEntity.getName())
+            .description(productEntity.getDescription())
             .costs(productEntity.getCosts().stream().map(EntityModelMapper::toModel).toList())
             .dimensions(toModel(productEntity.getDimensions()))
             .build();

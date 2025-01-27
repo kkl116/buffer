@@ -1,11 +1,12 @@
 CREATE TABLE products (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(500) NOT NULL
+    name TEXT NOT NULL,
+    description TEXT
 );
 
 CREATE TABLE product_costs (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(500) NOT NULL,
+    name TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     product_id BIGINT REFERENCES products(id) ON DELETE CASCADE
 );

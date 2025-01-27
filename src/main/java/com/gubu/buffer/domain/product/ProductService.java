@@ -74,6 +74,7 @@ public class ProductService {
     private static Product toModel(ProductRequestDto productRequestDto) {
         return Product.builder()
             .name(productRequestDto.name())
+            .description(productRequestDto.description())
             .build();
     }
 
