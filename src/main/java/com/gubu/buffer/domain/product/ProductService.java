@@ -75,6 +75,7 @@ public class ProductService {
         return Product.builder()
             .name(productRequestDto.name())
             .description(productRequestDto.description())
+            .price(productRequestDto.price())
             .build();
     }
 

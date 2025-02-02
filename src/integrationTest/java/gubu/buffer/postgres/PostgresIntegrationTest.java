@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
     private static final String PRODUCT_NAME = "Product 1";
+    private static final Double PRODUCT_PRICE = 5.00;
     private static final String PRODUCT_COST_NAME = "paper";
     private static final Double PRODUCT_COST_PRICE = 10.00;
     private static final String PRODUCT_DESCRIPTION = "Product Description";
@@ -48,7 +49,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         var productId2 = persistProduct();
 
         //When
-        var fields = List.of("id", "name", "description");
+        var fields = List.of("id", "name", "description", "price");
         var allProducts = productService.getAllProducts(fields);
 
         //Then
@@ -61,6 +62,8 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertNull(allProducts.get(1).getCosts());
         assertEquals(PRODUCT_DESCRIPTION, allProducts.get(0).getDescription());
         assertEquals(PRODUCT_DESCRIPTION, allProducts.get(1).getDescription());
+        assertEquals(PRODUCT_PRICE, allProducts.get(0).getPrice());
+        assertEquals(PRODUCT_PRICE, allProducts.get(1).getPrice());
     }
 
     @Test
@@ -91,19 +94,20 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         persistProductCost(productId1);
 
         //When
-        var fields = List.of("name", "dimensions", "costs");
+        var fields = List.of("name", "dimensions", "costs", "price");
         var fetchedProduct = productService.getProductById(productId1, fields).get();
 
         //Then
         assertEquals(PRODUCT_NAME, fetchedProduct.getName());
         assertNotNull(fetchedProduct.getDimensions());
         assertNotNull(fetchedProduct.getCosts());
+        assertNotNull(fetchedProduct.getPrice());
     }
 
     @Test
     void shouldAddProductSuccessfully() {
         //Given
-        var productRequestDto = new ProductRequestDto(PRODUCT_NAME, null);
+        var productRequestDto = new ProductRequestDto(PRODUCT_NAME, null, null);
         //When
         var returnedProduct = productService.addProduct(productRequestDto);
 
@@ -216,7 +220,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
 
     private Long persistProduct() {
-        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME, PRODUCT_DESCRIPTION);
+        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE);
         var product = productService.addProduct(savedProductRequestDto);
 
         return product.getId();

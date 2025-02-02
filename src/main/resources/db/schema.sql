@@ -1,7 +1,8 @@
 CREATE TABLE products (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    description TEXT
+    description TEXT,
+    price DECIMAL(10, 2)
 );
 
 CREATE TABLE product_costs (

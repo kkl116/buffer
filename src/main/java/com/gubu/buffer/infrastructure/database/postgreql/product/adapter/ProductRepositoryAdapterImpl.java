@@ -123,6 +123,10 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
             productEntity.setDescription(product.getDescription());
         }
 
+        if (product.getPrice() != null) {
+            productEntity.setPrice(product.getPrice());
+        }
+
         this.productRepository.save(productEntity);
     }
 
@@ -135,6 +139,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
             case ID -> productBuilder.id(results.getFirst().get(field.getValue(), Long.class));
             case NAME -> productBuilder.name(results.getFirst().get(field.getValue(), String.class));
             case DESCRIPTION -> productBuilder.description(results.getFirst().get(field.getValue(), String.class));
+            case PRICE -> productBuilder.price(results.getFirst().get(field.getValue(), Double.class));
             case DIMENSIONS -> productBuilder.dimensions(
                 toModel(results.getFirst().get(field.getValue(), ProductDimensionsEntity.class))
             );
@@ -155,8 +160,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         Root<ProductEntity> root = query.from(ProductEntity.class);
 
         //create intermediate set of fields for query - should include Id - for grouping later
-        Set<ProductField> queryFields = new HashSet<>();
-        queryFields.addAll(requestedFields);
+        Set<ProductField> queryFields = new HashSet<>(requestedFields);
         queryFields.add(ProductField.ID);
 
         List<Selection<?>> selections = new ArrayList<>();
@@ -185,6 +189,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         ID("id"),
         NAME("name"),
         DESCRIPTION("description"),
+        PRICE("price"),
         DIMENSIONS("dimensions"),
         COSTS("costs");
 

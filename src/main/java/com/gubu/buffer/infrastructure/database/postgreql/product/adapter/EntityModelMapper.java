@@ -16,6 +16,7 @@ public class EntityModelMapper {
         return ProductEntity.builder()
             .name(product.getName())
             .description(product.getDescription())
+            .price(product.getPrice())
             .build();
     }
 
@@ -40,6 +41,7 @@ public class EntityModelMapper {
             .id(productEntity.getId())
             .name(productEntity.getName())
             .description(productEntity.getDescription())
+            .price(productEntity.getPrice())
             .costs(productEntity.getCosts().stream().map(EntityModelMapper::toModel).toList())
             .dimensions(toModel(productEntity.getDimensions()))
             .build();

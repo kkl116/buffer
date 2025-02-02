@@ -29,6 +29,7 @@ public class ResponseMapper {
             .id(product.getId())
             .name(product.getName())
             .description(product.getDescription())
+            .price(product.getPrice())
             .costs(costDtos)
             .dimensions(dimensionsDto)
             .build();

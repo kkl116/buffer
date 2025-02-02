@@ -33,6 +33,10 @@ public class ProductEntity {
     @Column
     private String description;
 
+    @Setter
+    @Column
+    private Double price;
+
     @Builder.Default
     @OneToMany(
         fetch = FetchType.LAZY,

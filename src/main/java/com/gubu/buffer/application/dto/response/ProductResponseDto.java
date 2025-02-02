@@ -11,6 +11,7 @@ public record ProductResponseDto(
     Long id,
     String name,
     String description,
+    Double price,
     List<ProductCostResponseDto> costs,
     ProductDimensionsResponseDto dimensions
 ) {}
