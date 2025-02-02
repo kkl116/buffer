@@ -4,15 +4,16 @@ import com.gubu.buffer.domain.model.Product;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ProductRepositoryAdapter {
-    List<Product> findAll(List<String> fields);
+    List<Product> findAll(Set<ProductField> fields);
 
     Product save(Product product);
 
     void deleteById(Long productId);
 
-    Optional<Product> findById(Long productId, List<String> fields);
+    Optional<Product> findById(Long productId, Set<ProductField> fields);
 
     void deleteAll();
 

@@ -1,6 +1,7 @@
 package com.gubu.buffer.infrastructure.database.postgreql.product.adapter;
 
 import com.gubu.buffer.domain.model.Product;
+import com.gubu.buffer.domain.product.ProductField;
 import com.gubu.buffer.domain.product.ProductRepositoryAdapter;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductCostEntity;
 import com.gubu.buffer.infrastructure.database.postgreql.product.entity.ProductDimensionsEntity;
@@ -11,7 +12,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -37,18 +37,13 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
     }
 
     @Override
-    public List<Product> findAll(List<String> fields) {
+    public List<Product> findAll(Set<ProductField> fields) {
         //TODO: Return objects instead of exceptions!
         if (fields.isEmpty()) {
             return this.productRepository.findAll().stream().map(EntityModelMapper::toModel).toList();
         }
 
-        //perform findAll query with selected fields
-        Set<ProductField> requestedFields = fields.stream()
-            .map(ProductField::fromString)
-            .collect(Collectors.toUnmodifiableSet());
-
-        List<Tuple> results = executeFetchProductQuery(requestedFields, null);
+        List<Tuple> results = executeFetchProductQuery(fields, null);
 
         if (results.isEmpty()) {
             return List.of();
@@ -58,7 +53,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
         return results.stream()
             .collect(Collectors.groupingBy(row -> row.get("id", Long.class)))
             .values().stream()
-            .map(rows -> convertRowsToProduct(requestedFields, rows))
+            .map(rows -> convertRowsToProduct(fields, rows))
             .toList();
     }
 
@@ -85,24 +80,19 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
     }
 
     @Override
-    public Optional<Product> findById(Long productId, List<String> fields) {
+    public Optional<Product> findById(Long productId, Set<ProductField> fields) {
         if (fields.isEmpty()) {
             //just return the whole entity if none specified
             return this.productRepository.findById(productId).map(EntityModelMapper::toModel);
         }
 
-        //perform a select query with specified fields
-        Set<ProductField> requestedFields = fields.stream()
-            .map(ProductField::fromString)
-            .collect(Collectors.toUnmodifiableSet());
-
-        List<Tuple> results = executeFetchProductQuery(requestedFields, productId);
+        List<Tuple> results = executeFetchProductQuery(fields, productId);
 
         if (results.isEmpty()) {
             return Optional.empty();
         }
 
-        return Optional.of(convertRowsToProduct(requestedFields, results));
+        return Optional.of(convertRowsToProduct(fields, results));
     }
 
     @Override
@@ -148,6 +138,7 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
                 .map(EntityModelMapper::toModel)
                 .toList()
             );
+            case PROFIT,PROFIT_MARGIN,TOTAL_COST -> productBuilder;
         };
     }
 
@@ -182,30 +173,5 @@ public class ProductRepositoryAdapterImpl implements ProductRepositoryAdapter {
                 (builder1, builder2) -> builder2 //dummy combiner
             )
             .build();
-    }
-
-    @Getter
-    private enum ProductField {
-        ID("id"),
-        NAME("name"),
-        DESCRIPTION("description"),
-        PRICE("price"),
-        DIMENSIONS("dimensions"),
-        COSTS("costs");
-
-        private final String value;
-
-        ProductField(String value) {
-            this.value = value;
-        }
-
-        public static ProductField fromString(String fieldName) {
-            for (ProductField field : values()) {
-                if (field.name().equalsIgnoreCase(fieldName)) {
-                    return field;
-                }
-            }
-            throw new IllegalArgumentException("Invalid field: " + fieldName);
-        }
     }
 }

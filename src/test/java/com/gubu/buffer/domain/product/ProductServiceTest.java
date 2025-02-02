@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -37,7 +37,7 @@ class ProductServiceTest {
     @Test
     void shouldAddProduct() {
         //When
-        productService.addProduct(new ProductRequestDto("dummy", null));
+        productService.addProduct(new ProductRequestDto("dummy", null, null));
         //Then
         verify(productRepositoryAdapter, times(1)).save(any(Product.class));
     }
@@ -54,25 +54,25 @@ class ProductServiceTest {
     @Test
     void shouldGetAllProducts() {
         //When
-        productService.getAllProducts(List.of());
+        productService.getAllProducts(Set.of());
 
         //Then
-        verify(productRepositoryAdapter, times(1)).findAll(List.of());
+        verify(productRepositoryAdapter, times(1)).findAll(Set.of());
     }
 
     @Test
     void shouldGetProductById() {
         //When
-        productService.getProductById(1L, List.of());
+        productService.getProductById(1L, Set.of());
 
         //Then
-        verify(productRepositoryAdapter, times(1)).findById(1L, List.of());
+        verify(productRepositoryAdapter, times(1)).findById(1L, Set.of());
     }
 
     @Test
     void shouldUpdateProduct() {
         //When
-        var productRequestDto = new ProductRequestDto(null, "Description 2");
+        var productRequestDto = new ProductRequestDto(null, "Description 2", null);
         productService.updateProduct(1L, productRequestDto);
 
         //Then

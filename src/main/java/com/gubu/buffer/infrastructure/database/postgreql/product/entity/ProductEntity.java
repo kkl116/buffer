@@ -34,7 +34,7 @@ public class ProductEntity {
     private String description;
 
     @Setter
-    @Column
+    @Column(nullable = false)
     private Double price;
 
     @Builder.Default
@@ -80,5 +80,12 @@ public class ProductEntity {
         return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer()
             .getPersistentClass()
             .hashCode() : getClass().hashCode();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.price == null) {
+            this.price = 0.00;
+        }
     }
 }

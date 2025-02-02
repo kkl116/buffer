@@ -16,4 +16,19 @@ public class Product {
     private Double price;
     private List<ProductCost> costs;
     private ProductDimensions dimensions;
+
+    public Double getTotalCost() {
+        return this.costs.stream().mapToDouble(ProductCost::getPrice).sum();
+    }
+
+    public Double getProfit() {
+        return this.price - this.getTotalCost();
+    }
+
+    public Double getProfitMargin() {
+        if (this.price.equals(0.0)) {
+            return 0.0;
+        }
+        return this.getProfit() / this.price;
+    }
 }

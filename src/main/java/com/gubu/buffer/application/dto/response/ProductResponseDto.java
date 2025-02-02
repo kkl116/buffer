@@ -13,5 +13,8 @@ public record ProductResponseDto(
     String description,
     Double price,
     List<ProductCostResponseDto> costs,
-    ProductDimensionsResponseDto dimensions
+    ProductDimensionsResponseDto dimensions,
+    Double profit,
+    Double totalCost,
+    Double profitMargin
 ) {}

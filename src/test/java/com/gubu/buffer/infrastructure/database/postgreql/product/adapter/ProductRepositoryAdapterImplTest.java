@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.gubu.buffer.common.Common.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,7 +36,7 @@ class ProductRepositoryAdapterImplTest {
         when(productRepository.findAll()).thenReturn(List.of(productEntity1(), productEntity2()));
 
         //When
-        var productEntities = productJpaRepository.findAll(List.of());
+        var productEntities = productJpaRepository.findAll(Set.of());
 
         //Then
         verify(productRepository, times(1)).findAll();
@@ -72,7 +73,7 @@ class ProductRepositoryAdapterImplTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity1()));
 
         //When
-        productJpaRepository.findById(1L, List.of());
+        productJpaRepository.findById(1L, Set.of());
 
         //Then
         verify(productRepository, times(1)).findById(1L);

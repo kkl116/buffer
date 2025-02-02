@@ -6,32 +6,32 @@ import com.gubu.buffer.application.dto.response.ProductResponseDto;
 import com.gubu.buffer.domain.model.Product;
 import com.gubu.buffer.domain.model.ProductCost;
 import com.gubu.buffer.domain.model.ProductDimensions;
+import com.gubu.buffer.domain.product.ProductField;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 public class ResponseMapper {
 
     private ResponseMapper() {}
 
-    public static ProductResponseDto toResponse(Product product) {
+    public static ProductResponseDto toResponse(Product product, Set<ProductField> requestedFields) {
 
-        //fields can be nullable depending on which were requested, so just provide defaults
-        List<ProductCostResponseDto> costDtos = Optional.ofNullable(product.getCosts())
-            .map(costs -> costs.stream().map(ResponseMapper::toResponse).toList())
-            .orElse(null);
+        if (requestedFields.isEmpty()) {
+            return ProductResponseDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .costs(product.getCosts().stream().map(ResponseMapper::toResponse).toList())
+                .dimensions(toResponse(product.getDimensions()))
+                .build();
+        }
 
-        ProductDimensionsResponseDto dimensionsDto = Optional.ofNullable(product.getDimensions())
-            .map(ResponseMapper::toResponse)
-            .orElse(null);
-
-        return ProductResponseDto.builder()
-            .id(product.getId())
-            .name(product.getName())
-            .description(product.getDescription())
-            .price(product.getPrice())
-            .costs(costDtos)
-            .dimensions(dimensionsDto)
+        return requestedFields.stream()
+            .reduce(ProductResponseDto.builder(),
+                (builder, field) -> updateProductResponseDtoBuilder(product, field, builder),
+                (builder1, builder2) -> builder2 //dummy combiner
+            )
             .build();
     }
 
@@ -49,5 +49,24 @@ public class ResponseMapper {
             .width(productDimensions.getWidth())
             .depth(productDimensions.getDepth())
             .build();
+    }
+
+    private static ProductResponseDto.ProductResponseDtoBuilder updateProductResponseDtoBuilder(
+        Product product,
+        ProductField field,
+        ProductResponseDto.ProductResponseDtoBuilder productResponseDtoBuilder
+    ) {
+        return switch (field) {
+            case ID -> productResponseDtoBuilder.id(product.getId());
+            case NAME -> productResponseDtoBuilder.name(product.getName());
+            case DESCRIPTION -> productResponseDtoBuilder.description(product.getDescription());
+            case PRICE -> productResponseDtoBuilder.price(product.getPrice());
+            case DIMENSIONS -> productResponseDtoBuilder.dimensions(toResponse(product.getDimensions()));
+            case COSTS ->
+                productResponseDtoBuilder.costs(product.getCosts().stream().map(ResponseMapper::toResponse).toList());
+            case PROFIT -> productResponseDtoBuilder.profit(product.getProfit());
+            case TOTAL_COST -> productResponseDtoBuilder.totalCost(product.getTotalCost());
+            case PROFIT_MARGIN -> productResponseDtoBuilder.profitMargin(product.getProfitMargin());
+        };
     }
 }

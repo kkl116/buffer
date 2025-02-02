@@ -3,13 +3,16 @@ package gubu.buffer.postgres;
 import com.gubu.buffer.application.dto.request.ProductCostRequestDto;
 import com.gubu.buffer.application.dto.request.ProductDimensionRequestDto;
 import com.gubu.buffer.application.dto.request.ProductRequestDto;
+import com.gubu.buffer.domain.product.ProductField;
 import com.gubu.buffer.domain.product.ProductService;
 import gubu.buffer.AbstractIntegrationTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,7 +37,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         persistProductCost(1L);
 
         //When
-        var allProducts = productService.getAllProducts(List.of());
+        var allProducts = productService.getAllProducts(Set.of());
 
         //Then
         assertEquals(2, allProducts.size());
@@ -49,7 +52,10 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         var productId2 = persistProduct();
 
         //When
-        var fields = List.of("id", "name", "description", "price");
+        var fields = Stream.of("id", "name", "description", "price")
+            .map(ProductField::fromString)
+            .collect(Collectors.toSet());
+
         var allProducts = productService.getAllProducts(fields);
 
         //Then
@@ -62,8 +68,33 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertNull(allProducts.get(1).getCosts());
         assertEquals(PRODUCT_DESCRIPTION, allProducts.get(0).getDescription());
         assertEquals(PRODUCT_DESCRIPTION, allProducts.get(1).getDescription());
-        assertEquals(PRODUCT_PRICE, allProducts.get(0).getPrice());
-        assertEquals(PRODUCT_PRICE, allProducts.get(1).getPrice());
+        assertEquals(0.00, allProducts.get(0).getPrice());
+        assertEquals(0.00, allProducts.get(1).getPrice());
+    }
+
+    @Test
+    void shouldGetAllProductWithCalculatedFieldsSuccessfully() {
+        //Given
+        var productId1 = persistProduct();
+        var productId2 = persistProduct();
+        persistProductCost(productId1);
+        persistProductCost(productId1);
+
+        //When
+        var fields = Stream.of("profit", "total_cost", "profit_margin")
+            .map(ProductField::fromString)
+            .collect(Collectors.toSet());
+
+        var allProducts = productService.getAllProducts(fields);
+
+        //Then
+        assertEquals(2, allProducts.size());
+        assertEquals(-20.00, allProducts.getFirst().getProfit());
+        assertEquals(0.00, allProducts.getFirst().getProfitMargin());
+        assertEquals(20.00, allProducts.getFirst().getTotalCost());
+        assertEquals(-20.00, allProducts.get(1).getProfit());
+        assertEquals(0.00, allProducts.get(1).getProfitMargin());
+        assertEquals(20.00, allProducts.get(1).getTotalCost());
     }
 
     @Test
@@ -75,7 +106,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         persistProductCost(productId1);
 
         //When
-        var fetchedProduct = productService.getProductById(productId1, List.of()).get();
+        var fetchedProduct = productService.getProductById(productId1, Set.of()).get();
 
         //Then
         assertEquals(productId1, fetchedProduct.getId());
@@ -94,7 +125,10 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         persistProductCost(productId1);
 
         //When
-        var fields = List.of("name", "dimensions", "costs", "price");
+        var fields = Stream.of("name", "dimensions", "costs", "price")
+            .map(ProductField::fromString)
+            .collect(Collectors.toSet());
+
         var fetchedProduct = productService.getProductById(productId1, fields).get();
 
         //Then
@@ -102,6 +136,27 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
         assertNotNull(fetchedProduct.getDimensions());
         assertNotNull(fetchedProduct.getCosts());
         assertNotNull(fetchedProduct.getPrice());
+    }
+
+    @Test
+    void shouldGetProductWithCalculatedFieldsSuccessfully() {
+        //Given
+        var productId1 = persistProduct();
+        var productId2 = persistProduct();
+        persistProductCost(productId1);
+        persistProductCost(productId1);
+
+        //When
+        var fields = Stream.of("profit", "total_cost", "profit_margin")
+            .map(ProductField::fromString)
+            .collect(Collectors.toSet());
+
+        var fetchedProduct = productService.getProductById(productId1, fields).get();
+
+        //Then
+        assertEquals(-20.00, fetchedProduct.getProfit());
+        assertEquals(0.00, fetchedProduct.getProfitMargin());
+        assertEquals(20.00, fetchedProduct.getTotalCost());
     }
 
     @Test
@@ -220,7 +275,7 @@ public class PostgresIntegrationTest extends AbstractIntegrationTest {
 
 
     private Long persistProduct() {
-        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME, PRODUCT_DESCRIPTION, PRODUCT_PRICE);
+        var savedProductRequestDto = new ProductRequestDto(PRODUCT_NAME, PRODUCT_DESCRIPTION, null);
         var product = productService.addProduct(savedProductRequestDto);
 
         return product.getId();

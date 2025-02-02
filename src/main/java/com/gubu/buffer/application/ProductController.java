@@ -5,12 +5,15 @@ import com.gubu.buffer.application.dto.request.ProductRequestDto;
 import com.gubu.buffer.application.dto.response.ProductCostResponseDto;
 import com.gubu.buffer.application.dto.response.ProductResponseDto;
 import com.gubu.buffer.domain.model.ProductCost;
+import com.gubu.buffer.domain.product.ProductField;
 import com.gubu.buffer.domain.product.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.gubu.buffer.application.ResponseMapper.toResponse;
 
@@ -28,8 +31,12 @@ public class ProductController {
     ResponseEntity<List<ProductResponseDto>> getProducts(
         @RequestParam(value = "fields", required = false) String fieldsParam
     ) {
-        List<ProductResponseDto> products = productService.getAllProducts(parseFieldsParam(fieldsParam)).stream()
-            .map(ResponseMapper::toResponse)
+        Set<ProductField> requestedFields = parseFieldsParam(fieldsParam).stream()
+            .map(ProductField::fromString)
+            .collect(Collectors.toSet());
+
+        List<ProductResponseDto> products = productService.getAllProducts(requestedFields).stream()
+            .map(product -> ResponseMapper.toResponse(product, requestedFields))
             .toList();
 
         return ResponseEntity.ok(products);
@@ -40,17 +47,20 @@ public class ProductController {
         @PathVariable Long productId,
         @RequestParam(value = "fields", required = false) String fieldsParam
     ) {
-        return productService.getProductById(productId, parseFieldsParam(fieldsParam))
-            .map(ResponseMapper::toResponse)
+        Set<ProductField> requestedFields = parseFieldsParam(fieldsParam).stream()
+            .map(ProductField::fromString)
+            .collect(Collectors.toSet());
+
+        return productService.getProductById(productId, requestedFields)
+            .map(product -> ResponseMapper.toResponse(product, requestedFields))
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/product")
     ResponseEntity<ProductResponseDto> saveProduct(@RequestBody ProductRequestDto productRequestDto) {
-        ProductResponseDto productResponseDto = toResponse(productService.addProduct(productRequestDto));
+        ProductResponseDto productResponseDto = toResponse(productService.addProduct(productRequestDto), Set.of());
         return ResponseEntity.ok(productResponseDto);
-
     }
 
     @PatchMapping("/product/{productId}")

@@ -9,8 +9,10 @@ import com.gubu.buffer.domain.model.ProductDimensions;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -42,12 +44,12 @@ public class ProductService {
         this.productRepositoryAdapter.updateProduct(productId, toModel(productRequestDto));
     }
 
-    public List<Product> getAllProducts(List<String> fields) {
-        return this.productRepositoryAdapter.findAll(fields);
+    public List<Product> getAllProducts(Set<ProductField> fields) {
+        return this.productRepositoryAdapter.findAll(toEntityFields(fields));
     }
 
-    public Optional<Product> getProductById(Long productId, List<String> fields) {
-        return this.productRepositoryAdapter.findById(productId, fields);
+    public Optional<Product> getProductById(Long productId, Set<ProductField> fields) {
+        return this.productRepositoryAdapter.findById(productId, toEntityFields(fields));
     }
 
     //Product cost methods
@@ -92,5 +94,17 @@ public class ProductService {
             .width(productDimensionRequestDto.width())
             .depth(productDimensionRequestDto.depth())
             .build();
+    }
+
+    private static Set<ProductField> toEntityFields(Set<ProductField> fields) {
+        Map<Boolean, List<ProductField>> partitionedFields = fields.stream()
+            .collect(Collectors.partitioningBy(ProductField::isCalculatedField));
+
+        Set<ProductField> entityFields = partitionedFields.get(true).stream()
+            .flatMap(field -> field.getRequisiteFields().stream())
+            .collect(Collectors.toSet());
+
+        entityFields.addAll(partitionedFields.get(false));
+        return entityFields;
     }
 }
