@@ -24,6 +24,9 @@ public class ResponseMapper {
                 .price(product.getPrice())
                 .costs(product.getCosts().stream().map(ResponseMapper::toResponse).toList())
                 .dimensions(toResponse(product.getDimensions()))
+                .profit(product.getProfit())
+                .profitMargin(product.getProfitMargin())
+                .totalCost(product.getTotalCost())
                 .build();
         }
 
