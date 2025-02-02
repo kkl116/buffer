@@ -1,6 +1,6 @@
-INSERT INTO products (name, description) VALUES
-('Dummy 1', 'Description 1'),
-('Dummy 2', 'Description 2');
+INSERT INTO products (name, description, price) VALUES
+('Dummy 1', 'Description 1', 5.00),
+('Dummy 2', 'Description 2', 2.00);
 
 INSERT INTO product_costs (product_id, name, price) VALUES
 (1, 'dummy cost', 2.00);
