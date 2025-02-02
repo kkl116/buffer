@@ -29,6 +29,6 @@ public class Product {
         if (this.price.equals(0.0)) {
             return 0.0;
         }
-        return this.getProfit() / this.price;
+        return (this.getProfit() / this.price) * 100;
     }
 }
